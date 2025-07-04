@@ -1,0 +1,22 @@
+{
+    "schemaName": "work",
+    "dimensionFieldSpecs": [
+        {
+            "name": "application",
+            "dataType": "STRING"
+        },
+        {
+            "name": "tab",
+            "dataType": "STRING"
+        }
+    ],
+    "metricFieldSpecs": [],
+    "dateTimeFieldSpecs": [
+        {
+            "name": "done_at",
+            "dataType": "LONG",
+            "format": "1:MILLISECONDS:EPOCH",
+            "granularity": "1:MILLISECONDS"
+        }
+    ]
+}

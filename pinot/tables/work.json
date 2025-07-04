@@ -1,0 +1,45 @@
+{
+    "tableName": "work",
+    "tableType": "REALTIME",
+    "segmentsConfig": {
+        "timeColumnName": "done_at",
+        "timeType": "MILLISECONDS",
+        "schemaName": "work",
+        "replicasPerPartition": "1"
+    },
+    "tenants": {
+        "broker": "DefaultTenant",
+        "server": "DefaultTenant"
+    },
+    "tableIndexConfig": {
+        "loadMode": "MMAP"
+    },
+    "metadata": {
+        "customConfigs": {}
+    },
+    "ingestionConfig": {
+        "streamIngestionConfig": {
+            "streamConfigMaps": [
+                {
+                    "realtime.segment.flush.threshold.rows": "0",
+                    "stream.kafka.decoder.prop.format": "JSON",
+                    "key.serializer": "org.apache.kafka.common.serialization.ByteArraySerializer",
+                    "stream.kafka.decoder.class.name": "org.apache.pinot.plugin.inputformat.json.JSONMessageDecoder",
+                    "streamType": "kafka",
+                    "value.serializer": "org.apache.kafka.common.serialization.ByteArraySerializer",
+                    "realtime.segment.flush.threshold.segment.rows": "50000",
+                    "stream.kafka.broker.list": "kafka:9092",
+                    "realtime.segment.flush.threshold.time": "3600000",
+                    "stream.kafka.consumer.factory.class.name": "org.apache.pinot.plugin.stream.kafka20.KafkaConsumerFactory",
+                    "stream.kafka.consumer.prop.auto.offset.reset": "smallest",
+                    "stream.kafka.topic.name": "work-topic"
+                }
+            ]
+        },
+        "transformConfigs": [],
+        "continueOnError": true,
+        "rowTimeValueCheck": true,
+        "segmentTimeValueCheck": false
+    },
+    "isDimTable": false
+}

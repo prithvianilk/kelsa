@@ -1,0 +1,122 @@
+version: '3.7'
+
+services:
+  pinot-zookeeper:
+    image: ${ZK_IMAGE:-zookeeper:3.9.2}
+    container_name: "pinot-zookeeper"
+    restart: unless-stopped
+    ports:
+      - "2181:2181"
+    volumes:
+      - /Users/prithvianilkumar/code/fun/kelsa/pinot:/app
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    networks:
+      - pinot-demo
+    healthcheck:
+      test: ["CMD", "zkServer.sh", "status"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
+
+  pinot-kafka:
+    image: ${KAFKA_IMAGE:-bitnami/kafka:3.6}
+    container_name: "kafka"
+    restart: unless-stopped
+    ports:
+      - "9092:9092"
+    volumes:
+      - /Users/prithvianilkumar/code/fun/kelsa/pinot:/app
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: pinot-zookeeper:2181/kafka
+      KAFKA_BROKER_ID: 0
+      KAFKA_ADVERTISED_HOST_NAME: kafka
+    depends_on:
+      pinot-zookeeper:
+        condition: service_healthy
+    networks:
+      - pinot-demo
+    healthcheck:
+      test: [ "CMD-SHELL", "kafka-broker-api-versions.sh -bootstrap-server kafka:9092" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
+    deploy:
+      replicas: ${KAFKA_REPLICAS:-1}  # Default to 0, meaning Kafka won't start unless KAFKA_REPLICAS is set
+
+  pinot-controller:
+    image: ${PINOT_IMAGE:-apachepinot/pinot:latest}
+    command: "StartController -zkAddress pinot-zookeeper:2181"
+    container_name: "pinot-controller"
+    restart: unless-stopped
+    ports:
+      - "9000:9000"
+    volumes:
+      - /Users/prithvianilkumar/code/fun/kelsa/pinot:/app
+    environment:
+      JAVA_OPTS: "-Dplugins.dir=/opt/pinot/plugins -Xms256M -Xmx256M -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -Xloggc:gc-pinot-controller.log"
+    depends_on:
+      pinot-zookeeper:
+        condition: service_healthy
+    networks:
+      - pinot-demo
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9000/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
+
+  pinot-broker:
+    image: ${PINOT_IMAGE:-apachepinot/pinot:latest}
+    command: "StartBroker -zkAddress pinot-zookeeper:2181"
+    container_name: "pinot-broker"
+    restart: unless-stopped
+    ports:
+      - "8099:8099"
+    volumes:
+      - /Users/prithvianilkumar/code/fun/kelsa/pinot:/app
+    environment:
+      JAVA_OPTS: "-Dplugins.dir=/opt/pinot/plugins -Xms256M -Xmx256M -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -Xloggc:gc-pinot-broker.log"
+    depends_on:
+      pinot-controller:
+        condition: service_healthy
+    networks:
+      - pinot-demo
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8099/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
+
+  pinot-server:
+    image: ${PINOT_IMAGE:-apachepinot/pinot:latest}
+    command: "StartServer -zkAddress pinot-zookeeper:2181"
+    container_name: "pinot-server"
+    restart: unless-stopped
+    volumes:
+      - /Users/prithvianilkumar/code/fun/kelsa/pinot:/app
+    ports:
+      - "8098:8098"
+    environment:
+      JAVA_OPTS: "-Dplugins.dir=/opt/pinot/plugins -Xms256M -Xmx256M -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -Xloggc:gc-pinot-server.log"
+    depends_on:
+      pinot-broker:
+        condition: service_healthy
+    networks:
+      - pinot-demo
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8097/health/readiness || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
+
+networks:
+  pinot-demo:
+    name: pinot-demo
+    driver: bridge
