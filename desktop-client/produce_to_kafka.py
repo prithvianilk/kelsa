@@ -2,7 +2,7 @@ import json
 from kafka import KafkaProducer
 import time
 
-bootstrap_servers = 'localhost:9092'
+bootstrap_servers = 'localhost:9094'
 topic_name = 'work-topic'
 
 producer = KafkaProducer(
@@ -14,15 +14,15 @@ producer = KafkaProducer(
 message_data = {
     "application": "vscode",
     "tab": "kelsa",
-    "timestamp": int(time.time() * 1000)
+    "done_at": int(time.time() * 1000)
 }
 
 for i in range(1, 1001):
     try:
         # Update timestamp for each message to be unique
-        message_data['timestamp'] = int(time.time() * 1000)
+        message_data['done_at'] = int(time.time() * 1000)
         producer.send(topic_name, value=message_data)
-        print(f"Sent iteration {i} to topic '{topic_name}'")
+        print(f"Sent iteration {i} to topic '{topic_name}' with value {message_data}")
     except Exception as e:
         print(f"Error sending message on iteration {i}: {e}")
         break

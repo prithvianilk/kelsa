@@ -26,13 +26,18 @@ services:
     container_name: "kafka"
     restart: unless-stopped
     ports:
-      - "9092:9092"
+      - "9094:9094"
     volumes:
       - /Users/prithvianilkumar/code/fun/kelsa/pinot:/app
     environment:
       KAFKA_ZOOKEEPER_CONNECT: pinot-zookeeper:2181/kafka
       KAFKA_BROKER_ID: 0
       KAFKA_ADVERTISED_HOST_NAME: kafka
+      KAFKA_CFG_LISTENERS: PLAINTEXT://:9092,EXTERNAL://:9094
+      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,EXTERNAL://localhost:9094
+      ALLOW_PLAINTEXT_LISTENER: yes
+
     depends_on:
       pinot-zookeeper:
         condition: service_healthy
