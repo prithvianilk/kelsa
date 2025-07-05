@@ -3,11 +3,24 @@ import streamlit as st
 import pandas as pd
 import pinotdb
 from work_repo import PinotWorkRepo
+import altair as alt
 
 def pretty_print_work_done(work_done_since_start_time):
     if work_done_since_start_time > 3600:
         return f"{work_done_since_start_time // 3600}h {work_done_since_start_time % 3600 // 60}m"
     return f"{work_done_since_start_time // 60}m"
+
+def render_pie_chart(st, work_done_since_start_time_by_app):
+    source = pd.DataFrame({"values": [w[0] for w in work_done_since_start_time_by_app], "app": [w[1] for w in work_done_since_start_time_by_app]})
+    base = alt.Chart(source).encode(
+        alt.Theta("values:Q").stack(True),
+        alt.Radius("values"),
+        color="app:N",
+    )
+    c1 = base.mark_arc(innerRadius=20, stroke="#fff")
+    c2 = base.mark_text(radiusOffset=10).encode(text="values:Q")
+    chart = c1 + c2
+    st.altair_chart(chart)
 
 conn = pinotdb.connect(
     host="localhost",
@@ -31,3 +44,4 @@ df = pd.DataFrame(
     }
 )
 st.table(df)
+render_pie_chart(st, work_done_since_start_time_by_app)
