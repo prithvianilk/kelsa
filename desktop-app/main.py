@@ -12,14 +12,10 @@ def pretty_print_work_done(work_done_since_start_time):
 
 def render_pie_chart(st, work_done_since_start_time_by_app):
     source = pd.DataFrame({"values": [w[0] for w in work_done_since_start_time_by_app], "app": [w[1] for w in work_done_since_start_time_by_app]})
-    base = alt.Chart(source).encode(
-        alt.Theta("values:Q").stack(True),
-        alt.Radius("values"),
+    chart = alt.Chart(source).mark_arc(innerRadius=50).encode(
+        theta="values",
         color="app:N",
     )
-    c1 = base.mark_arc(innerRadius=20, stroke="#fff")
-    c2 = base.mark_text(radiusOffset=10).encode(text="values:Q")
-    chart = c1 + c2
     st.altair_chart(chart)
 
 def to_app_level_metrics_page_link(app, epoch_time):
