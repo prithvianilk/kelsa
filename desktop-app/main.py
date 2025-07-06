@@ -18,6 +18,20 @@ def render_pie_chart(st, work_done_since_start_time_by_app):
     )
     st.altair_chart(chart)
 
+def render_bar_chart(st, work_done_since_start_time_by_app_and_date_hour):
+    work_done_since_start_time_by_app_and_date_hour = list(filter(lambda w: w[0] > 60, work_done_since_start_time_by_app_and_date_hour))
+    source = pd.DataFrame({
+        "values": [w[0] // 60 for w in work_done_since_start_time_by_app_and_date_hour], 
+        "app": [w[1] for w in work_done_since_start_time_by_app_and_date_hour],
+        "done_at": [pd.to_datetime(w[2]) for w in work_done_since_start_time_by_app_and_date_hour]
+    })
+    chart = alt.Chart(source).mark_line().encode(
+        x='done_at:T',
+        y='values:Q',
+        color='app:N',
+    )
+    st.altair_chart(chart)
+
 def to_app_level_metrics_page_link(app, epoch_time):
     return f"[{app}](http://localhost:8501/app_level_metrics_page?app={app}&epoch_time={epoch_time})"
 
@@ -38,3 +52,6 @@ df = pd.DataFrame(
 )
 st.table(df)
 render_pie_chart(st, work_done_since_start_time_by_app)
+
+work_done_since_start_time_by_app_and_date_hour = work_repo.get_work_done_since_start_time_in_secs_by_application_and_date_hour(epoch_time)
+render_bar_chart(st, work_done_since_start_time_by_app_and_date_hour)
