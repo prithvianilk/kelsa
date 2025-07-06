@@ -18,7 +18,6 @@ st.title(app)
 
 work_done_since_start_time_by_tab = work_repo.get_work_done_since_start_time_in_secs_where_app_is_by_tab(epoch_time, app)
 work_done_since_start_time_by_tab = list(filter(lambda w: w[0] > 60, work_done_since_start_time_by_tab))
-print("Work done since", epoch_time, "is", work_done_since_start_time_by_tab)
 
 df = pd.DataFrame(
     {

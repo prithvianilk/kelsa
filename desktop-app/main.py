@@ -33,7 +33,6 @@ t = st.time_input("At", datetime.time(0, 0))
 epoch_time = int(datetime.datetime.combine(d, t).timestamp() * 1000)
 work_done_since_start_time_by_app = work_repo.get_work_done_since_start_time_in_secs_by_application(epoch_time)
 work_done_since_start_time_by_app = list(filter(lambda w: w[0] > 60, work_done_since_start_time_by_app))
-print("Work done since", t, "is", work_done_since_start_time_by_app)
 
 df = pd.DataFrame(
     {
