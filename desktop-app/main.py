@@ -67,5 +67,5 @@ df = pd.DataFrame(
 st.table(df)
 render_pie_chart(st, work_done_since_start_time_by_app)
 
-work_done_since_start_time_by_app_and_date_hour = work_repo.get_work_done_since_start_time_in_secs_by_application_and_date_hour(epoch_time)
+work_done_since_start_time_by_app_and_date_hour = work_repo.get_work_done_since_start_time_in_secs_by_app_and_date_hour(epoch_time)
 render_area_chart(st, work_done_since_start_time_by_app_and_date_hour)
