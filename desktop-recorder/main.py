@@ -11,7 +11,7 @@ producer = KafkaProducer(
 )
 fetchers = [JxaApplicationDetailsFetcher(), AppleScriptApplicationDetailsFetcher()]
 logger = ConsoleLogger()
-recorder = FirstSuccessfulFetcherWorkRecorder(fetchers, logger, KafkaWorkRecorder(fetchers, logger, producer, 'work-topic'))
+recorder = FirstSuccessfulFetcherWorkRecorder(fetchers, logger, KafkaWorkRecorder(None, logger, producer, 'work-topic'))
 
 while True:
     recorder.record_work()

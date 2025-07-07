@@ -5,10 +5,11 @@ class WorkRecorder:
     def __init__(self, logger):
         self.logger = logger
 
-    def build_work(self, app, tab):
+    def build_work(self, app, tab, is_active):
         return {
             "application": app,
             "tab": tab,
+            "active": is_active,
             "done_at": int(time.time() * 1000)
         }
 
@@ -26,8 +27,8 @@ class SingleFetcherWorkRecorder(WorkRecorder):
         self.fetcher = fetcher
     
     def record_work(self):
-        app, tab = self.fetcher.get_active_application_details()
-        work = self.build_work(app, tab)
+        app, tab, is_active = self.fetcher.get_active_application_details()
+        work = self.build_work(app, tab, is_active)
         self.publish_work(work)
         self.logger.log(f"Recorded work: {work}")
 
@@ -39,10 +40,10 @@ class FirstSuccessfulFetcherWorkRecorder(WorkRecorder):
 
     def record_work(self):
         for index, fetcher in enumerate(self.fetchers):
-            app, tab = fetcher.get_active_application_details()
+            app, tab, is_active = fetcher.get_active_application_details()
             self.logger.log(f"Fetcher {index} found work: {app} {tab}")
             if app is not None and tab is not None and tab != "":
-                work = self.build_work(app, tab)
+                work = self.build_work(app, tab, is_active)
                 self.publish_work(work)
                 return
 

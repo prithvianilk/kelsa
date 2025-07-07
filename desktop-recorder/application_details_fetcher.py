@@ -1,6 +1,7 @@
 from abc import abstractmethod
 import subprocess
 import json
+import Quartz
 
 class ApplicationDetailsFetcher:
     def __init__(self):
@@ -9,6 +10,13 @@ class ApplicationDetailsFetcher:
     @abstractmethod
     def get_active_application_details(self):
         pass
+
+    def is_user_active(self, idle_threshold_seconds=1):
+        """Checks if the user has been active in the last `idle_threshold_seconds`."""
+        idle_time = Quartz.CGEventSourceSecondsSinceLastEventType(
+            Quartz.kCGEventSourceStateHIDSystemState, Quartz.kCGAnyInputEventType
+        )
+        return idle_time < idle_threshold_seconds
 
 class JxaApplicationDetailsFetcher(ApplicationDetailsFetcher):
     def get_active_application_details(self):
@@ -34,7 +42,7 @@ class JxaApplicationDetailsFetcher(ApplicationDetailsFetcher):
             cmd = ['osascript', '-l', 'JavaScript', '-e', jxa_script]
             result = subprocess.run(cmd, capture_output=True, text=True, check=True)
             data = json.loads(result.stdout.strip())
-            return data.get('application'), data.get('tab')
+            return data.get('application'), data.get('tab'), self.is_user_active()
         except (subprocess.CalledProcessError, json.JSONDecodeError, FileNotFoundError) as e:
             # If the script fails, print the error for debugging
             if isinstance(e, subprocess.CalledProcessError):
@@ -42,7 +50,7 @@ class JxaApplicationDetailsFetcher(ApplicationDetailsFetcher):
                 print(f"DEBUG: stderr: {e.stderr}")
             else:
                 print(f"DEBUG: Python error after JXA script execution: {e}")
-            return None, None
+            return None, None, False
 
 class AppleScriptApplicationDetailsFetcher(ApplicationDetailsFetcher):
     def get_active_application_details(self):
@@ -63,11 +71,11 @@ class AppleScriptApplicationDetailsFetcher(ApplicationDetailsFetcher):
             cmd = ['osascript', '-e', applescript]
             result = subprocess.run(cmd, capture_output=True, text=True, check=True)
             data = json.loads(result.stdout.strip())
-            return data.get('application'), data.get('tab')
+            return data.get('application'), data.get('tab'), self.is_user_active()
         except (subprocess.CalledProcessError, json.JSONDecodeError, FileNotFoundError) as e:
             if isinstance(e, subprocess.CalledProcessError):
                 print(f"DEBUG: AppleScript failed with return code {e.returncode}")
                 print(f"DEBUG: stderr: {e.stderr}")
             else:
                 print(f"DEBUG: Python error after AppleScript execution: {e}")
-            return None, None
+            return None, None, False
