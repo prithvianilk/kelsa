@@ -43,3 +43,31 @@ class JxaApplicationDetailsFetcher(ApplicationDetailsFetcher):
             else:
                 print(f"DEBUG: Python error after JXA script execution: {e}")
             return None, None
+
+class AppleScriptApplicationDetailsFetcher(ApplicationDetailsFetcher):
+    def get_active_application_details(self):
+        applescript = """
+        tell application "System Events"
+            set front_app to first application process whose frontmost is true
+            set app_name to name of front_app
+            set window_title to ""
+            try
+                if (exists (window 1 of front_app)) then
+                    set window_title to name of window 1 of front_app
+                end if
+            end try
+            return "{\\"application\\":\\"" & app_name & "\\", \\"tab\\":\\"" & window_title & "\\"}"
+        end tell
+        """
+        try:
+            cmd = ['osascript', '-e', applescript]
+            result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+            data = json.loads(result.stdout.strip())
+            return data.get('application'), data.get('tab')
+        except (subprocess.CalledProcessError, json.JSONDecodeError, FileNotFoundError) as e:
+            if isinstance(e, subprocess.CalledProcessError):
+                print(f"DEBUG: AppleScript failed with return code {e.returncode}")
+                print(f"DEBUG: stderr: {e.stderr}")
+            else:
+                print(f"DEBUG: Python error after AppleScript execution: {e}")
+            return None, None
