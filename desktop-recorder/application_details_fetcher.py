@@ -11,7 +11,7 @@ class ApplicationDetailsFetcher:
     def get_active_application_details(self):
         pass
 
-    def is_user_active(self, idle_threshold_seconds=1):
+    def is_user_active(self, idle_threshold_seconds=5):
         """Checks if the user has been active in the last `idle_threshold_seconds`."""
         idle_time = Quartz.CGEventSourceSecondsSinceLastEventType(
             Quartz.kCGEventSourceStateHIDSystemState, Quartz.kCGAnyInputEventType
