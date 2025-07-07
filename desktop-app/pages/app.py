@@ -4,15 +4,16 @@ from work_repo import PinotWorkRepo
 from pinot_conn import conn
 import altair as alt
 from ui import pretty_print_work_done
+from work_grouper import get_work_grouper
 
 def render_pie_chart(st, work_done_since_start_time_by_tab):
     source = pd.DataFrame({
         "values": [w[0] // 60 for w in work_done_since_start_time_by_tab], 
-        "tab": [w[1] for w in work_done_since_start_time_by_tab]
+        "project": [w[1] for w in work_done_since_start_time_by_tab]
     })
     chart = alt.Chart(source).mark_arc(innerRadius=50).encode(
         theta="values",
-        color="tab:N",
+        color="project:N",
     )
     st.altair_chart(chart)
 
@@ -37,16 +38,18 @@ epoch_time = int(st.query_params['epoch_time'])
 st.title("work done in " + app + " since " + pd.to_datetime(epoch_time // 1000, unit='s').strftime("%Y-%m-%d %H:%M:%S"))
 
 work_done_since_start_time_by_tab = work_repo.get_work_done_since_start_time_in_secs_where_app_is_by_tab(epoch_time, app)
-work_done_since_start_time_by_tab = list(filter(lambda w: w[0] > 60, work_done_since_start_time_by_tab))
+app_work_grouper = get_work_grouper(app)
+work_done_since_start_time_by_project = app_work_grouper.regroup_work_by_project(work_done_since_start_time_by_tab)
+work_done_since_start_time_by_project = list(filter(lambda w: w[0] > 60, work_done_since_start_time_by_project))
 
 df = pd.DataFrame(
     {
-        "Work done": [pretty_print_work_done(w[0]) for w in work_done_since_start_time_by_tab],
-        "Tab": [w[1] for w in work_done_since_start_time_by_tab]
+        "Work done": [pretty_print_work_done(w[0]) for w in work_done_since_start_time_by_project],
+        "Project": [w[1] for w in work_done_since_start_time_by_project]
     }
 )
 st.table(df)
-render_pie_chart(st, work_done_since_start_time_by_tab)
+render_pie_chart(st, work_done_since_start_time_by_project)
 
 work_done_since_start_time_by_tab_and_date_hour = work_repo.get_work_done_since_start_time_in_secs_where_app_is_by_tab_and_date_hour(epoch_time, app)
 render_area_chart(st, work_done_since_start_time_by_tab_and_date_hour)
