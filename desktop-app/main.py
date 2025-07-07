@@ -4,14 +4,13 @@ import pandas as pd
 from work_repo import PinotWorkRepo
 import altair as alt
 from pinot_conn import conn
-
-def pretty_print_work_done(work_done_since_start_time):
-    if work_done_since_start_time > 3600:
-        return f"{work_done_since_start_time // 3600}h {work_done_since_start_time % 3600 // 60}m"
-    return f"{work_done_since_start_time // 60}m"
+from ui import pretty_print_work_done, to_app_metrics_page_link
 
 def render_pie_chart(st, work_done_since_start_time_by_app):
-    source = pd.DataFrame({"values": [w[0] for w in work_done_since_start_time_by_app], "app": [w[1] for w in work_done_since_start_time_by_app]})
+    source = pd.DataFrame({
+        "values": [w[0] // 60 for w in work_done_since_start_time_by_app], 
+        "app": [w[1] for w in work_done_since_start_time_by_app]
+    })
     chart = alt.Chart(source).mark_arc(innerRadius=50).encode(
         theta="values",
         color="app:N",
@@ -46,9 +45,6 @@ def render_area_chart(st, work_done_since_start_time_by_app_and_date_hour):
     )
     st.altair_chart(chart)
 
-def to_app_level_metrics_page_link(app, epoch_time):
-    return f"[{app}](http://localhost:8501/app_level_metrics_page?app={app}&epoch_time={epoch_time})"
-
 work_repo = PinotWorkRepo(conn)
 
 st.title("Your work at a glance")
@@ -61,7 +57,7 @@ work_done_since_start_time_by_app = list(filter(lambda w: w[0] > 60, work_done_s
 df = pd.DataFrame(
     {
         "Work done": [pretty_print_work_done(w[0]) for w in work_done_since_start_time_by_app],
-        "App": [to_app_level_metrics_page_link(w[1], epoch_time) for w in work_done_since_start_time_by_app]
+        "App": [to_app_metrics_page_link(w[1], epoch_time) for w in work_done_since_start_time_by_app]
     }
 )
 st.table(df)
