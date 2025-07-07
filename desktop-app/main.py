@@ -1,10 +1,14 @@
 import datetime
+import os
+import sys
 import streamlit as st
 import pandas as pd
 from work_repo import PinotWorkRepo
 import altair as alt
 from pinot_conn import conn
 from ui import pretty_print_work_done, to_app_metrics_page_link
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from common.logger import ConsoleLogger
 
 def render_pie_chart(st, work_done_since_start_time_by_app):
     source = pd.DataFrame({
