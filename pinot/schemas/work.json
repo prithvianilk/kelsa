@@ -8,6 +8,11 @@
         {
             "name": "tab",
             "dataType": "STRING"
+        },
+        {
+            "name": "active",
+            "dataType": "BOOLEAN",
+            "defaultValue": "true"
         }
     ],
     "metricFieldSpecs": [],
