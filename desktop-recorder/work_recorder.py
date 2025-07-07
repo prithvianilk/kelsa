@@ -31,7 +31,7 @@ class SingleFetcherWorkRecorder(WorkRecorder):
         self.publish_work(work)
         self.logger.log(f"Recorded work: {work}")
 
-class FirstSuccessfulWorkRecorder(WorkRecorder):
+class FirstSuccessfulFetcherWorkRecorder(WorkRecorder):
     def __init__(self, fetchers, logger, work_recorder):
         super().__init__(logger)
         self.fetchers = fetchers

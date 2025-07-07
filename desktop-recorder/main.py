@@ -2,7 +2,7 @@ import json
 from kafka import KafkaProducer
 import time
 from application_details_fetcher import JxaApplicationDetailsFetcher, AppleScriptApplicationDetailsFetcher
-from work_recorder import KafkaWorkRecorder, FirstSuccessfulWorkRecorder
+from work_recorder import KafkaWorkRecorder, FirstSuccessfulFetcherWorkRecorder
 from logger import ConsoleLogger
 
 producer = KafkaProducer(
@@ -11,7 +11,7 @@ producer = KafkaProducer(
 )
 fetchers = [JxaApplicationDetailsFetcher(), AppleScriptApplicationDetailsFetcher()]
 logger = ConsoleLogger()
-recorder = FirstSuccessfulWorkRecorder(fetchers, logger, KafkaWorkRecorder(fetchers, logger, producer, 'work-topic'))
+recorder = FirstSuccessfulFetcherWorkRecorder(fetchers, logger, KafkaWorkRecorder(fetchers, logger, producer, 'work-topic'))
 
 while True:
     recorder.record_work()
