@@ -6,7 +6,7 @@ import pandas as pd
 from work_repo import PinotWorkRepo
 import altair as alt
 from pinot_conn import conn
-from ui import pretty_print_work_done, to_app_metrics_page_link
+from ui import pretty_print_work_done, render_toggle_active_work, to_app_metrics_page_link
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from common.logger import ConsoleLogger
 
@@ -52,10 +52,11 @@ def render_area_chart(st, work_done_since_start_time_by_app_and_date_hour):
 work_repo = PinotWorkRepo(conn)
 
 st.title("Your work at a glance")
+is_active = render_toggle_active_work()
 d = st.date_input("Since", datetime.date.today())
 t = st.time_input("At", datetime.time(0, 0))
 epoch_time = int(datetime.datetime.combine(d, t).timestamp() * 1000)
-work_done_since_start_time_by_app = work_repo.get_work_done_since_start_time_in_secs_by_application(epoch_time)
+work_done_since_start_time_by_app = work_repo.get_work_done_since_start_time_in_secs_by_application(epoch_time, is_active)
 work_done_since_start_time_by_app = list(filter(lambda w: w[0] > 60, work_done_since_start_time_by_app))
 
 df = pd.DataFrame(
@@ -67,5 +68,5 @@ df = pd.DataFrame(
 st.table(df)
 render_pie_chart(st, work_done_since_start_time_by_app)
 
-work_done_since_start_time_by_app_and_date_hour = work_repo.get_work_done_since_start_time_in_secs_by_app_and_date_hour(epoch_time)
+work_done_since_start_time_by_app_and_date_hour = work_repo.get_work_done_since_start_time_in_secs_by_app_and_date_hour(epoch_time, is_active)
 render_area_chart(st, work_done_since_start_time_by_app_and_date_hour)
