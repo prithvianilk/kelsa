@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from work_repo import PinotWorkRepo
+from work_repo import PinotWorkRepo, WorkRepo
 from pinot_conn import conn
 import altair as alt
 from ui import pretty_print_work_done, capitalize_first_letter, render_toggle_active_work
@@ -34,27 +34,40 @@ def render_area_chart(st, work_done_since_start_time_by_tab_and_date_hour, group
     )
     st.altair_chart(chart)
 
+def get_work_done_since_start_time_by_tab(work_repo: WorkRepo, epoch_time: int, app: str, only_active_work: bool):
+    if only_active_work:
+        return work_repo.get_work_done_since_start_time_and_app_is_and_activity_is_by_tab(epoch_time, app, True)
+    else:
+        return work_repo.get_work_done_since_start_time_and_app_is_by_tab(epoch_time, app)
+
+def get_work_done_since_start_time_by_tab_and_date_hour(work_repo: WorkRepo, epoch_time: int, app: str, only_active_work: bool):
+    if only_active_work:
+        return work_repo.get_work_done_since_start_time_and_app_is_and_activity_is_by_tab_and_date_hour(epoch_time, app, True)
+    else:
+        return work_repo.get_work_done_since_start_time_and_app_is_by_tab_and_date_hour(epoch_time, app)
+
 work_repo = PinotWorkRepo(conn)
 
 app = st.query_params['app']
 epoch_time = int(st.query_params['epoch_time'])
 st.title("work done in " + app + " since " + pd.to_datetime(epoch_time // 1000, unit='s').strftime("%Y-%m-%d %H:%M:%S"))
-is_active = render_toggle_active_work()
+render_only_active_work = render_toggle_active_work()
 
-work_done_since_start_time_by_tab = work_repo.get_work_done_since_start_time_in_secs_where_app_is_by_tab(epoch_time, app, is_active)
+work_done_since_start_time_by_tab = get_work_done_since_start_time_by_tab(work_repo, epoch_time, app, render_only_active_work)
+
 app_work_grouper = get_work_grouper(app)
-work_done_since_start_time_by_project = app_work_grouper.regroup_work_by_tab(work_done_since_start_time_by_tab)
-work_done_since_start_time_by_project = list(filter(lambda w: w[0] > 60, work_done_since_start_time_by_project))
+work_done_since_start_time_by_group = app_work_grouper.regroup_work_by_tab(work_done_since_start_time_by_tab)
+work_done_since_start_time_by_group = list(filter(lambda w: w[0] > 60, work_done_since_start_time_by_group))
 
 df = pd.DataFrame(
     {
-        "Work done": [pretty_print_work_done(w[0]) for w in work_done_since_start_time_by_project],
-        capitalize_first_letter(app_work_grouper.group_key()): [w[1] for w in work_done_since_start_time_by_project]
+        "Work done": [pretty_print_work_done(w[0]) for w in work_done_since_start_time_by_group],
+        capitalize_first_letter(app_work_grouper.group_key()): [w[1] for w in work_done_since_start_time_by_group]
     }
 )
 st.table(df)
-render_pie_chart(st, work_done_since_start_time_by_project, app_work_grouper.group_key())
+render_pie_chart(st, work_done_since_start_time_by_group, app_work_grouper.group_key())
 
-work_done_since_start_time_by_tab_and_date_hour = work_repo.get_work_done_since_start_time_in_secs_where_app_is_by_tab_and_date_hour(epoch_time, app, is_active)
-work_done_since_start_time_by_project_and_date_hour = app_work_grouper.regroup_work_by_tab_and_date_hour(work_done_since_start_time_by_tab_and_date_hour)
-render_area_chart(st, work_done_since_start_time_by_project_and_date_hour, app_work_grouper.group_key())
+work_done_since_start_time_by_tab_and_date_hour = get_work_done_since_start_time_by_tab_and_date_hour(work_repo, epoch_time, app, render_only_active_work)
+work_done_since_start_time_by_group_and_date_hour = app_work_grouper.regroup_work_by_tab_and_date_hour(work_done_since_start_time_by_tab_and_date_hour)
+render_area_chart(st, work_done_since_start_time_by_group_and_date_hour, app_work_grouper.group_key())
