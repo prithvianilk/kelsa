@@ -76,7 +76,7 @@ work_done_since_start_time_by_app = list(filter(lambda w: w[0] > 60, work_done_s
 df = pd.DataFrame(
     {
         "Work done": [pretty_print_work_done(w[0]) for w in work_done_since_start_time_by_app],
-        "App": [to_app_metrics_page_link(w[1], epoch_time) for w in work_done_since_start_time_by_app]
+        "App": [to_app_metrics_page_link(st.context.url, w[1], epoch_time) for w in work_done_since_start_time_by_app]
     }
 )
 st.table(df)
