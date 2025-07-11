@@ -2,3 +2,4 @@ streamlit
 pandas
 pinotdb
 altair
+pytest

@@ -94,7 +94,7 @@ class ArcProjectNameApplicationWorkGrouper(ApplicationWorkGrouper):
         return [[w[0], self.clean_tab_name(w[1])] for w in work]
 
     def remove_youtube_notification_count(self, tab): 
-        cleaned_tab = re.sub(r'\(([0-9]+)\)', '', tab, count=1)
+        cleaned_tab = re.sub(r'\(([0-9]+)\) ', '', tab, count=1)
         if len(cleaned_tab.replace(' ', '')) == 0:
             return tab
         return cleaned_tab
