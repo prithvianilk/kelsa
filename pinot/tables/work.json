@@ -5,7 +5,10 @@
         "timeColumnName": "done_at",
         "timeType": "MILLISECONDS",
         "schemaName": "work",
-        "replicasPerPartition": "1"
+        "replicasPerPartition": "1",
+        // TODO: Check if this is correct
+        "flushThresholdRows": "1000",
+        "flushThresholdTime": "1s"
     },
     "tenants": {
         "broker": "DefaultTenant",
@@ -27,9 +30,10 @@
                     "stream.kafka.decoder.class.name": "org.apache.pinot.plugin.inputformat.json.JSONMessageDecoder",
                     "streamType": "kafka",
                     "value.serializer": "org.apache.kafka.common.serialization.ByteArraySerializer",
-                    "realtime.segment.flush.threshold.segment.rows": "50000",
                     "stream.kafka.broker.list": "kafka:9092",
-                    "realtime.segment.flush.threshold.time": "3600000",
+                    // TODO: Check if this is correct
+                    "realtime.segment.flush.threshold.segment.rows": "100",
+                    "realtime.segment.flush.threshold.time": "1s",
                     "stream.kafka.consumer.factory.class.name": "org.apache.pinot.plugin.stream.kafka20.KafkaConsumerFactory",
                     "stream.kafka.consumer.prop.auto.offset.reset": "smallest",
                     "stream.kafka.topic.name": "work-topic"
