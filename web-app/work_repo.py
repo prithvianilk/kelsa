@@ -1,8 +1,12 @@
 from abc import abstractmethod
+import os
+import sys
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from common.logger import Logger
 
 class WorkRepo:
-    def __init__(self, conn):
-        self.conn = conn
+    def __init__(self):
+        pass
 
     @abstractmethod
     def get_work_done_since_start_time_by_application(self, start_time: int):
@@ -37,6 +41,10 @@ class WorkRepo:
         pass
 
 class PinotWorkRepo(WorkRepo):
+    def __init__(self, conn, logger: Logger):
+        self.conn = conn
+        self.logger = logger
+
     def get_work_done_since_start_time_by_application(self, start_time: int):
         query = f"""
             select count (1) work_done_in_seconds, application from work
@@ -47,7 +55,9 @@ class PinotWorkRepo(WorkRepo):
         """
         curs = self.conn.cursor()
         curs.execute(query)
-        return curs.fetchall()
+        result = curs.fetchall()
+        self.logger.debug(f"Ran query: {query}\nResult: {result}")
+        return result
 
     def get_work_done_since_start_time_and_activity_is_by_application(self, start_time: int, active: bool):
         query = f"""
@@ -59,7 +69,9 @@ class PinotWorkRepo(WorkRepo):
         """
         curs = self.conn.cursor()
         curs.execute(query)
-        return curs.fetchall()
+        result = curs.fetchall()
+        self.logger.debug(f"Ran query: {query}\nResult: {result}")
+        return result
 
     def get_work_done_since_start_time_and_app_is_by_tab(self, start_time: int, app: str):
         query = f"""
@@ -71,7 +83,9 @@ class PinotWorkRepo(WorkRepo):
         """
         curs = self.conn.cursor()
         curs.execute(query)
-        return curs.fetchall()
+        result = curs.fetchall()
+        self.logger.debug(f"Ran query: {query}\nResult: {result}")
+        return result
     
     def get_work_done_since_start_time_and_app_is_and_activity_is_by_tab(self, start_time: int, app: str, active: bool):
         query = f"""
@@ -83,7 +97,9 @@ class PinotWorkRepo(WorkRepo):
         """
         curs = self.conn.cursor()
         curs.execute(query)
-        return curs.fetchall()
+        result = curs.fetchall()
+        self.logger.debug(f"Ran query: {query}\nResult: {result}")
+        return result
 
     def get_work_done_since_start_time_and_app_is_by_tab_and_date_hour(self, start_time: int, app: str):
         query = f"""
@@ -104,7 +120,9 @@ class PinotWorkRepo(WorkRepo):
         """
         curs = self.conn.cursor()
         curs.execute(query)
-        return curs.fetchall()
+        result = curs.fetchall()
+        self.logger.debug(f"Ran query: {query}\nResult: {result}")
+        return result
 
     def get_work_done_since_start_time_and_app_is_and_activity_is_by_tab_and_date_hour(self, start_time: int, app: str, active: bool):
         query = f"""
@@ -146,7 +164,9 @@ class PinotWorkRepo(WorkRepo):
         """
         curs = self.conn.cursor()
         curs.execute(query)
-        return curs.fetchall()
+        result = curs.fetchall()
+        self.logger.debug(f"Ran query: {query}\nResult: {result}")
+        return result
     
     def get_work_done_since_start_time_and_activity_is_by_app_and_date_hour(self, start_time: int, active: bool):
         query = f"""
@@ -167,4 +187,6 @@ class PinotWorkRepo(WorkRepo):
         """
         curs = self.conn.cursor()
         curs.execute(query)
-        return curs.fetchall()
+        result = curs.fetchall()
+        self.logger.debug(f"Ran query: {query}\nResult: {result}")
+        return result

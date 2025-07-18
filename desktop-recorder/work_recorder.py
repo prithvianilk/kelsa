@@ -1,8 +1,12 @@
 from abc import abstractmethod
 import time
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from common.logger import Logger
 
 class WorkRecorder:
-    def __init__(self, logger):
+    def __init__(self, logger: Logger):
         self.logger = logger
 
     def build_work(self, app, tab, is_active):
@@ -22,7 +26,7 @@ class WorkRecorder:
         pass
 
 class SingleFetcherWorkRecorder(WorkRecorder):
-    def __init__(self, fetcher, logger):
+    def __init__(self, fetcher, logger: Logger):
         super().__init__(logger)
         self.fetcher = fetcher
     
@@ -30,10 +34,10 @@ class SingleFetcherWorkRecorder(WorkRecorder):
         app, tab, is_active = self.fetcher.get_active_application_details()
         work = self.build_work(app, tab, is_active)
         self.publish_work(work)
-        self.logger.log(f"Recorded work: {work}")
+        self.logger.info(f"Recorded work: {work}")
 
 class FirstSuccessfulFetcherWorkRecorder(WorkRecorder):
-    def __init__(self, fetchers, logger, work_recorder):
+    def __init__(self, fetchers, logger: Logger, work_recorder):
         super().__init__(logger)
         self.fetchers = fetchers
         self.work_recorder = work_recorder
@@ -41,7 +45,7 @@ class FirstSuccessfulFetcherWorkRecorder(WorkRecorder):
     def record_work(self):
         for index, fetcher in enumerate(self.fetchers):
             app, tab, is_active = fetcher.get_active_application_details()
-            self.logger.log(f"Fetcher {index} found work: {app} {tab}")
+            self.logger.info(f"Fetcher {index} found work: {app} {tab}")
             if app is not None and tab is not None and tab != "":
                 work = self.build_work(app, tab, is_active)
                 self.publish_work(work)
@@ -51,7 +55,7 @@ class FirstSuccessfulFetcherWorkRecorder(WorkRecorder):
         self.work_recorder.publish_work(work)
 
 class KafkaWorkRecorder(SingleFetcherWorkRecorder):
-    def __init__(self, fetcher, logger, kafka_producer, topic_name):
+    def __init__(self, fetcher, logger: Logger, kafka_producer, topic_name):
         super().__init__(fetcher, logger)
         self.kafka_producer = kafka_producer
         self.topic_name = topic_name
@@ -59,4 +63,4 @@ class KafkaWorkRecorder(SingleFetcherWorkRecorder):
     def publish_work(self, work: dict):
         self.kafka_producer.send(self.topic_name, value=work)
         self.kafka_producer.flush()
-        self.logger.log(f"Published work to Kafka: {work}")
+        self.logger.info(f"Published work to Kafka: {work}")

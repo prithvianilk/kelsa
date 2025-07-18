@@ -1,14 +1,16 @@
 import datetime
-import os
-import sys
 import streamlit as st
 import pandas as pd
 from work_repo import PinotWorkRepo, WorkRepo
 import altair as alt
 from pinot_conn import conn
 from ui import pretty_print_work_done, render_toggle_active_work, to_app_metrics_page_link
+
+import os
+import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from common.logger import ConsoleLogger
+from common.logger import get_customised_logger, LogLevel
+logger = get_customised_logger(LogLevel.DEBUG)
 
 def render_pie_chart(st, work_done_since_start_time_by_app):
     source = pd.DataFrame({
@@ -61,7 +63,7 @@ def get_work_done_since_start_time_by_app_and_date_hour(work_repo: WorkRepo, epo
     else:
         return work_repo.get_work_done_since_start_time_by_app_and_date_hour(epoch_time)
 
-work_repo = PinotWorkRepo(conn)
+work_repo = PinotWorkRepo(conn, logger)
 
 st.title("Your work at a glance")
 d = st.date_input("Since", datetime.date.today())

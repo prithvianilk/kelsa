@@ -4,10 +4,14 @@ from work_repo import PinotWorkRepo, WorkRepo
 from pinot_conn import conn
 import altair as alt
 from ui import pretty_print_work_done, capitalize_first_letter, render_toggle_active_work
-from common.logger import ConsoleLogger
 from work_grouper import get_work_grouper
 
-logger = ConsoleLogger()
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from common.logger import get_customised_logger, LogLevel
+
+logger = get_customised_logger(LogLevel.DEBUG)
 
 def render_pie_chart(st, work_done_since_start_time_by_tab, group_key):
     source = pd.DataFrame({
@@ -46,7 +50,7 @@ def get_work_done_since_start_time_by_tab_and_date_hour(work_repo: WorkRepo, epo
     else:
         return work_repo.get_work_done_since_start_time_and_app_is_by_tab_and_date_hour(epoch_time, app)
 
-work_repo = PinotWorkRepo(conn)
+work_repo = PinotWorkRepo(conn, logger)
 
 app = st.query_params['app']
 epoch_time = int(st.query_params['epoch_time'])
