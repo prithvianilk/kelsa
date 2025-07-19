@@ -1,17 +1,20 @@
 services:
   pinot-zookeeper:
-    image: ${ZK_IMAGE:-zookeeper:3.9.2}
+    image: ${ZK_IMAGE:-zookeeper:3.9.3}
     container_name: "pinot-zookeeper"
     restart: unless-stopped
     ports:
       - "2181:2181"
     volumes:
       - /Users/prithvianilkumar/code/fun/kelsa/pinot:/app
+      - /Users/prithvianilkumar/code/fun/kelsa/pinot/data/zookeeper/data:/data
+      - /Users/prithvianilkumar/code/fun/kelsa/pinot/data/zookeeper/datalog:/datalog
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
     networks:
       - pinot-demo
+    command: ["sh", "-c", "mkdir -p /data /datalog && exec zkServer.sh start-foreground"]
     healthcheck:
       test: ["CMD", "zkServer.sh", "status"]
       interval: 30s
@@ -27,7 +30,7 @@ services:
       - "9094:9094"
     volumes:
       - /Users/prithvianilkumar/code/fun/kelsa/pinot:/app
-      - /Users/prithvianilkumar/code/fun/kelsa/pinot/kafka:/bitnami/kafka
+      - /Users/prithvianilkumar/code/fun/kelsa/pinot/data/kafka:/bitnami/kafka
     environment:
       KAFKA_ZOOKEEPER_CONNECT: pinot-zookeeper:2181/kafka
       KAFKA_BROKER_ID: 0
@@ -60,6 +63,7 @@ services:
       - "9000:9000"
     volumes:
       - /Users/prithvianilkumar/code/fun/kelsa/pinot:/app
+      - /Users/prithvianilkumar/code/fun/kelsa/pinot/data/controller:/tmp/data/PinotController
     environment:
       JAVA_OPTS: "-Dplugins.dir=/opt/pinot/plugins -Xms256M -Xmx256M -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -Xloggc:gc-pinot-controller.log"
     depends_on:
@@ -83,6 +87,7 @@ services:
       - "8099:8099"
     volumes:
       - /Users/prithvianilkumar/code/fun/kelsa/pinot:/app
+      - /Users/prithvianilkumar/code/fun/kelsa/pinot/data/broker:/tmp/data/broker
     environment:
       JAVA_OPTS: "-Dplugins.dir=/opt/pinot/plugins -Xms256M -Xmx256M -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -Xloggc:gc-pinot-broker.log"
     depends_on:
@@ -104,6 +109,7 @@ services:
     restart: unless-stopped
     volumes:
       - /Users/prithvianilkumar/code/fun/kelsa/pinot:/app
+      - /Users/prithvianilkumar/code/fun/kelsa/pinot/data/server:/tmp/data
     ports:
       - "8098:8098"
     environment:
