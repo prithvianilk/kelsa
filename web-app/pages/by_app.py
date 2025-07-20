@@ -3,7 +3,7 @@ import pandas as pd
 from work_repo import PinotWorkRepo, WorkRepo
 from pinot_conn import conn
 import altair as alt
-from ui import pretty_print_work_done, capitalize_first_letter, render_toggle_active_work
+from ui import pretty_print_work_done, render_toggle_active_work
 from work_grouper import get_work_grouper
 
 import sys
@@ -65,7 +65,7 @@ work_done_since_start_time_by_group = list(filter(lambda w: w[0] > 60, work_done
 df = pd.DataFrame(
     {
         "Work done": [pretty_print_work_done(w[0]) for w in work_done_since_start_time_by_group],
-        capitalize_first_letter(app_work_grouper.group_key()): [w[1] for w in work_done_since_start_time_by_group]
+        app_work_grouper.group_key().title(): [w[1] for w in work_done_since_start_time_by_group]
     }
 )
 st.table(df)
