@@ -14,6 +14,10 @@ app = FastAPI(title="Kelsa Work API", description="API for work tracking data")
 kafka_producer = KafkaProducer(bootstrap_servers=['localhost:9094'])
 work_ingestion_service = KafkaWorkIngestionService(logger, kafka_producer, 'work-topic')
 
+# TODO
+# - Add a health check endpoint
+# - Add auth
+
 @app.post("/api/work")
 async def record_work(work: Work):
     """Record work"""

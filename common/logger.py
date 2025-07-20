@@ -1,6 +1,8 @@
 from abc import abstractmethod
 from enum import Enum
 
+# TODO: Use an actual logging library :P 
+
 class Logger:
     def __init__(self):
         pass

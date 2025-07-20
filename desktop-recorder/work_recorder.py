@@ -2,6 +2,8 @@ from abc import abstractmethod
 import time
 import sys
 import os
+import requests
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from common.logger import Logger
 
@@ -17,6 +19,7 @@ class WorkRecorder:
             "done_at": int(time.time() * 1000)
         }
 
+    # TODO: decouple the work recorder from the publisher
     @abstractmethod
     def record_work(self):
         pass
@@ -64,3 +67,22 @@ class KafkaWorkRecorder(SingleFetcherWorkRecorder):
         self.kafka_producer.send(self.topic_name, value=work)
         self.kafka_producer.flush()
         self.logger.info(f"Published work to Kafka: {work}")
+
+class ApiWorkRecorder(SingleFetcherWorkRecorder):
+    def __init__(self, fetcher, base_url: str, logger: Logger):
+        super().__init__(fetcher, logger)
+        self.base_url = base_url.rstrip('/')
+
+    def publish_work(self, work: dict):
+        try:
+            response = requests.post(
+                f"{self.base_url}/api/work",
+                json=work,
+                headers={"Content-Type": "application/json"},
+                timeout=10
+            )
+            response.raise_for_status()
+            self.logger.info(f"Successfully published work to API: {work}")
+        except requests.exceptions.RequestException as e:
+            self.logger.error(f"Failed to publish work to API: {e}")
+            raise
