@@ -8,7 +8,7 @@ from work_recorder import KafkaWorkRecorder, FirstSuccessfulFetcherWorkRecorder
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from common.logger import get_customised_logger, LogLevel
-logger = get_customised_logger(LogLevel.DEBUG)
+logger = get_customised_logger(LogLevel.INFO)
 
 producer = KafkaProducer(
     bootstrap_servers=['localhost:9094'],

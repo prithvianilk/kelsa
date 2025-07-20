@@ -10,8 +10,7 @@ import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from common.logger import get_customised_logger, LogLevel
-
-logger = get_customised_logger(LogLevel.DEBUG)
+logger = get_customised_logger(LogLevel.INFO)
 
 def render_pie_chart(st, work_done_since_start_time_by_tab, group_key):
     source = pd.DataFrame({
