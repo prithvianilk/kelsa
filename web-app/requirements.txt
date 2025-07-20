@@ -3,3 +3,7 @@ pandas
 pinotdb
 altair
 pytest
+fastapi
+uvicorn[standard]
+kafka-python
+pydantic

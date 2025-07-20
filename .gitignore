@@ -1,3 +1,4 @@
 **/.env
 **/__pycache__
 pinot/data
+.pytest_cache

@@ -58,13 +58,13 @@ class LevelPrefixedLogger(Logger):
         self.logger = logger
 
     def info(self, message):
-        self.logger.info(f"INFO: {message}")
+        self.logger.info(f"INFO:     {message}")
 
     def debug(self, message):
-        self.logger.debug(f"DEBUG: {message}")
+        self.logger.debug(f"DEBUG:     {message}")
     
     def error(self, message):
-        self.logger.error(f"ERROR: {message}")
+        self.logger.error(f"ERROR:     {message}")
 
 class NoopLogger(Logger):
     def info(self, message):
