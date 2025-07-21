@@ -3,6 +3,11 @@ import subprocess
 import json
 import Quartz
 
+import os
+import sys
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from common.logger import Logger
+
 class ApplicationDetailsFetcher:
     def __init__(self):
         pass
@@ -79,3 +84,18 @@ class AppleScriptApplicationDetailsFetcher(ApplicationDetailsFetcher):
             else:
                 print(f"DEBUG: Python error after AppleScript execution: {e}")
             return None, None, False
+
+class FirstSuccessfulApplicationDetailsFetcher(ApplicationDetailsFetcher):
+    def __init__(self, logger: Logger, fetchers: list[ApplicationDetailsFetcher]):
+        self.fetchers = fetchers
+        self.logger = logger
+
+    def get_active_application_details(self):
+        for fetcher in self.fetchers:
+            application_name, tab_name, is_user_active = fetcher.get_active_application_details()
+            self.logger.info(f"Fetcher {fetcher.__class__.__name__} found work: {application_name} {tab_name}")
+            if application_name and tab_name:
+                return application_name, tab_name, is_user_active
+
+        self.logger.error("No application details found")
+        return None, None, False
