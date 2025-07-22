@@ -67,4 +67,4 @@ class ApiWorkRecorder(SingleFetcherWorkRecorder):
             self.logger.info(f"Successfully published work to API: {work}")
         except requests.exceptions.RequestException as e:
             self.logger.error(f"Failed to publish work to API: {e}")
-            raise
+            pass
