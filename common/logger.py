@@ -20,9 +20,9 @@ class Logger:
         pass
 
 class LogLevel(Enum):
-    INFO = 0
-    DEBUG = 1
-    ERROR = 2
+    ERROR = 0
+    INFO = 1
+    DEBUG = 2
 
     def __ge__(self, other):
         return self.value >= other.value
