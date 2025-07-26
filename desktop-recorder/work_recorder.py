@@ -51,16 +51,18 @@ class KafkaWorkRecorder(SingleFetcherWorkRecorder):
         self.logger.info(f"Published work to Kafka: {work}")
 
 class ApiWorkRecorder(SingleFetcherWorkRecorder):
-    def __init__(self, logger: Logger, fetcher: ApplicationDetailsFetcher, base_url: str):
+    def __init__(self, logger: Logger, fetcher: ApplicationDetailsFetcher, base_url: str, api_token: str = None):
         super().__init__(logger, fetcher)
         self.base_url = base_url.rstrip('/')
+        self.api_token = api_token
 
     def publish_work(self, work: dict):
         try:
+            headers = {"Content-Type": "application/json", "x-api-token": self.api_token}
             response = requests.post(
                 f"{self.base_url}/api/work",
                 json=work,
-                headers={"Content-Type": "application/json"},
+                headers=headers,
                 timeout=10
             )
             response.raise_for_status()

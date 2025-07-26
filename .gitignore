@@ -2,3 +2,6 @@
 **/__pycache__
 pinot/data
 .pytest_cache
+
+**/.env.*
+**/config.env
