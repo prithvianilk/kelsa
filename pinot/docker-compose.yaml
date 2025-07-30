@@ -6,9 +6,9 @@ services:
     ports:
       - "2181:2181"
     volumes:
-      - /home/ec2-user/app/kelsa/pinot:/app
-      - /home/ec2-user/app/kelsa/pinot/data/zookeeper/data:/data
-      - /home/ec2-user/app/kelsa/pinot/data/zookeeper/datalog:/datalog
+      - /Users/prithvianilkumar/code/fun/kelsa/pinot:/app
+      - /Users/prithvianilkumar/code/fun/kelsa/pinot/data/zookeeper/data:/data
+      - /Users/prithvianilkumar/code/fun/kelsa/pinot/data/zookeeper/datalog:/datalog
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
@@ -32,8 +32,8 @@ services:
     ports:
       - "9099:9099"
     volumes:
-      - /home/ec2-user/app/kelsa/pinot:/app
-      - /home/ec2-user/app/kelsa/pinot/data/kafka:/bitnami/kafka
+      - /Users/prithvianilkumar/code/fun/kelsa/pinot:/app
+      - /Users/prithvianilkumar/code/fun/kelsa/pinot/data/kafka:/bitnami/kafka
     environment:
       KAFKA_ZOOKEEPER_CONNECT: pinot-zookeeper:2181/kafka
       KAFKA_BROKER_ID: 0
@@ -65,8 +65,8 @@ services:
     ports:
       - "9000:9000"
     volumes:
-      - /home/ec2-user/app/kelsa/pinot:/app
-      - /home/ec2-user/app/kelsa/pinot/data/controller:/tmp/data/PinotController
+      - /Users/prithvianilkumar/code/fun/kelsa/pinot:/app
+      - /Users/prithvianilkumar/code/fun/kelsa/pinot/data/controller:/tmp/data/PinotController
     environment:
       JAVA_OPTS: "-Dplugins.dir=/opt/pinot/plugins -Xms256M -Xmx256M -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -Xloggc:gc-pinot-controller.log"
     depends_on:
@@ -89,8 +89,8 @@ services:
     ports:
       - "8099:8099"
     volumes:
-      - /home/ec2-user/app/kelsa/pinot:/app
-      - /home/ec2-user/app/kelsa/pinot/data/broker:/tmp/data/broker
+      - /Users/prithvianilkumar/code/fun/kelsa/pinot:/app
+      - /Users/prithvianilkumar/code/fun/kelsa/pinot/data/broker:/tmp/data/broker
     environment:
       JAVA_OPTS: "-Dplugins.dir=/opt/pinot/plugins -Xms256M -Xmx256M -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -Xloggc:gc-pinot-broker.log"
     depends_on:
@@ -111,8 +111,8 @@ services:
     container_name: "pinot-server"
     restart: unless-stopped
     volumes:
-      - /home/ec2-user/app/kelsa/pinot:/app
-      - /home/ec2-user/app/kelsa/pinot/data/server:/tmp/data
+      - /Users/prithvianilkumar/code/fun/kelsa/pinot:/app
+      - /Users/prithvianilkumar/code/fun/kelsa/pinot/data/server:/tmp/data
     ports:
       - "8098:8098"
     environment:
