@@ -110,7 +110,7 @@ class IdeaProjectNameApplicationWorkGrouper(ApplicationWorkGrouper):
         return "project"
 
     def get_project_name(self, tab):
-        items = tab.split(" — ")
+        items = tab.split(" – ")
         if len(items) == 2:
             return items[0]
         return tab

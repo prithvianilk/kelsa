@@ -18,9 +18,10 @@ def test_arc_project_name_application_work_grouper():
 
 def test_idea_project_name_application_work_grouper():
     idea_project_name_application_work_grouper = IdeaProjectNameApplicationWorkGrouper()
+
     work = [
-        [100, "mistletoe — MerchantLogoService.java [mistletoe.application.main]", "2025-01-01 00:00:00"],
-        [200, "mistletoe — MerchantLogoService.java [mistletoe.application.main]", "2025-01-01 00:00:00"],
+        [100, "mistletoe – MerchantLogoService.java [mistletoe.application.main]", "2025-01-01 00:00:00"],
+        [200, "mistletoe – MerchantLogoService.java [mistletoe.application.main]", "2025-01-01 00:00:00"]
     ]
     expected_regrouped_work = [
         [300, "mistletoe"],
