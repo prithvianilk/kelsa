@@ -6,12 +6,15 @@ services:
     ports:
       - "2181:2181"
     volumes:
-      - /Users/prithvianilkumar/code/fun/kelsa/pinot:/app
-      - /Users/prithvianilkumar/code/fun/kelsa/pinot/data/zookeeper/data:/data
-      - /Users/prithvianilkumar/code/fun/kelsa/pinot/data/zookeeper/datalog:/datalog
+      - /home/ec2-user/app/kelsa/pinot:/app
+      - /home/ec2-user/app/kelsa/pinot/data/zookeeper/data:/data
+      - /home/ec2-user/app/kelsa/pinot/data/zookeeper/datalog:/datalog
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
+      ZOO_AUTOPURGE_PURGEINTERVAL: 1
+      ZOO_AUTOPURGE_SNAPRETAINCOUNT: 3
+
     networks:
       - pinot-demo
     command: ["sh", "-c", "mkdir -p /data /datalog && exec zkServer.sh start-foreground"]
@@ -27,17 +30,17 @@ services:
     container_name: "kafka"
     restart: unless-stopped
     ports:
-      - "9094:9094"
+      - "9099:9099"
     volumes:
-      - /Users/prithvianilkumar/code/fun/kelsa/pinot:/app
-      - /Users/prithvianilkumar/code/fun/kelsa/pinot/data/kafka:/bitnami/kafka
+      - /home/ec2-user/app/kelsa/pinot:/app
+      - /home/ec2-user/app/kelsa/pinot/data/kafka:/bitnami/kafka
     environment:
       KAFKA_ZOOKEEPER_CONNECT: pinot-zookeeper:2181/kafka
       KAFKA_BROKER_ID: 0
       KAFKA_ADVERTISED_HOST_NAME: kafka
-      KAFKA_CFG_LISTENERS: PLAINTEXT://:9092,EXTERNAL://:9094
+      KAFKA_CFG_LISTENERS: PLAINTEXT://:9092,EXTERNAL://:9099
       KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
-      KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,EXTERNAL://localhost:9094
+      KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,EXTERNAL://localhost:9099
       ALLOW_PLAINTEXT_LISTENER: yes
 
     depends_on:
@@ -62,8 +65,8 @@ services:
     ports:
       - "9000:9000"
     volumes:
-      - /Users/prithvianilkumar/code/fun/kelsa/pinot:/app
-      - /Users/prithvianilkumar/code/fun/kelsa/pinot/data/controller:/tmp/data/PinotController
+      - /home/ec2-user/app/kelsa/pinot:/app
+      - /home/ec2-user/app/kelsa/pinot/data/controller:/tmp/data/PinotController
     environment:
       JAVA_OPTS: "-Dplugins.dir=/opt/pinot/plugins -Xms256M -Xmx256M -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -Xloggc:gc-pinot-controller.log"
     depends_on:
@@ -86,8 +89,8 @@ services:
     ports:
       - "8099:8099"
     volumes:
-      - /Users/prithvianilkumar/code/fun/kelsa/pinot:/app
-      - /Users/prithvianilkumar/code/fun/kelsa/pinot/data/broker:/tmp/data/broker
+      - /home/ec2-user/app/kelsa/pinot:/app
+      - /home/ec2-user/app/kelsa/pinot/data/broker:/tmp/data/broker
     environment:
       JAVA_OPTS: "-Dplugins.dir=/opt/pinot/plugins -Xms256M -Xmx256M -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -Xloggc:gc-pinot-broker.log"
     depends_on:
@@ -108,8 +111,8 @@ services:
     container_name: "pinot-server"
     restart: unless-stopped
     volumes:
-      - /Users/prithvianilkumar/code/fun/kelsa/pinot:/app
-      - /Users/prithvianilkumar/code/fun/kelsa/pinot/data/server:/tmp/data
+      - /home/ec2-user/app/kelsa/pinot:/app
+      - /home/ec2-user/app/kelsa/pinot/data/server:/tmp/data
     ports:
       - "8098:8098"
     environment:
