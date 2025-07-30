@@ -35,6 +35,10 @@ class SingleFetcherWorkRecorder(WorkRecorder):
     
     def record_work(self):
         app, tab, is_active = self.fetcher.get_active_application_details()
+        if app is None:
+            self.logger.error("No application details found, skipping work recording")
+            return
+
         work = self.build_work(app, tab, is_active)
         self.publish_work(work)
         self.logger.info(f"Recorded work: {work}")
