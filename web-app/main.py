@@ -99,6 +99,6 @@ password = get_password()
 if password == config.get_config("WEB_APP_PASSWORD"):
     state = LoggedInLandingPage(password)
 else:
-    state = LoggedOutState()
+    state = LoggedOutState(config.get_config("WEB_APP_URL"))
 
 state.render()
