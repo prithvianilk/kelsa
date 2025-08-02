@@ -4,20 +4,18 @@ import pandas as pd
 from work_repo import PinotWorkRepo, WorkRepo
 import altair as alt
 from pinot_conn import conn
-from ui import pretty_print_work_done, render_toggle_active_work, to_app_metrics_page_link, get_password
-from pages.page_state import PageState, LoggedOutState
+from ui import pretty_print_work_done, render_toggle_active_work, to_app_metrics_page_link
+from pages.page_state import PageState
 
 import os
 import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from common.logger import get_customised_logger, LogLevel
-from common.config import DotEnvEnvironmentVariables
 logger = get_customised_logger(LogLevel.INFO)
-config = DotEnvEnvironmentVariables("config.env")
 
-class LoggedInLandingPage(PageState):
-    def __init__(self, password):
-        self.password = password
+class LandingPage(PageState):
+    def __init__(self):
+        pass
 
     def render_pie_chart(self, work_done_since_start_time_by_app):
         source = pd.DataFrame({
@@ -86,7 +84,7 @@ class LoggedInLandingPage(PageState):
         df = pd.DataFrame(
             {
                 "Work done": [pretty_print_work_done(w[0]) for w in work_done_since_start_time_by_app],
-                "App": [to_app_metrics_page_link(st.context.url, w[1], epoch_time, self.password) for w in work_done_since_start_time_by_app]
+                "App": [to_app_metrics_page_link(st.context.url, w[1], epoch_time) for w in work_done_since_start_time_by_app]
             }
         )
         st.table(df)
@@ -95,10 +93,5 @@ class LoggedInLandingPage(PageState):
         work_done_since_start_time_by_app_and_date_hour = self.get_work_done_since_start_time_by_app_and_date_hour(work_repo, epoch_time, render_only_active_work)
         self.render_area_chart(work_done_since_start_time_by_app_and_date_hour)
 
-password = get_password()
-if password == config.get_config("WEB_APP_PASSWORD"):
-    state = LoggedInLandingPage(password)
-else:
-    state = LoggedOutState(config.get_config("WEB_APP_URL"))
-
+state = LandingPage()
 state.render()

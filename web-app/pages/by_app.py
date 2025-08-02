@@ -3,19 +3,17 @@ import pandas as pd
 from work_repo import PinotWorkRepo
 from pinot_conn import conn
 import altair as alt
-from ui import pretty_print_work_done, render_toggle_active_work, get_password  
+from ui import pretty_print_work_done, render_toggle_active_work
 from work_grouper import get_work_grouper
-from pages.page_state import PageState, LoggedOutState
+from pages.page_state import PageState
 
 import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from common.logger import get_customised_logger, LogLevel
-from common.config import DotEnvEnvironmentVariables
-config = DotEnvEnvironmentVariables("config.env")
 logger = get_customised_logger(LogLevel.INFO)
 
-class LoggedInByAppPage(PageState):
+class ByAppPage(PageState):
     def __init__(self):
         self.work_repo = PinotWorkRepo(conn, logger)
 
@@ -82,10 +80,5 @@ class LoggedInByAppPage(PageState):
         self.render_area_chart(work_done_since_start_time_by_group_and_date_hour, app_work_grouper.group_key())
 
 
-password = get_password()
-if password == config.get_config("WEB_APP_PASSWORD"):
-    state = LoggedInByAppPage()
-else:
-    state = LoggedOutState(config.get_config("WEB_APP_URL"))
-
+state = ByAppPage()
 state.render()
