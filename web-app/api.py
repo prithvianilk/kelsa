@@ -15,7 +15,7 @@ logger = get_customised_logger(LogLevel.INFO)
 config = DotEnvEnvironmentVariables("config.env")
 
 app = FastAPI(title="Kelsa Work API", description="API for work tracking data")
-kafka_producer = KafkaProducer(bootstrap_servers=['localhost:9099'])
+kafka_producer = KafkaProducer(bootstrap_servers=['localhost:9094'])
 work_ingestion_service = KafkaWorkIngestionService(logger, kafka_producer, 'work-topic')
 
 # TODO
