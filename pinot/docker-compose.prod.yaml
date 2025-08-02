@@ -82,6 +82,7 @@ services:
     image: nginx:latest
     container_name: "nginx"
     restart: unless-stopped
+    network_mode: "host"
     ports:
       - "6969:6969"
     volumes:
