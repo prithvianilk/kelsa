@@ -1,2 +1,2 @@
-# Ubuntu/Debian
-sudo apt install apache2-utils
+sudo yum install -y httpd-tools
+

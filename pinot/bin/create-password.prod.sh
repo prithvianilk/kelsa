@@ -1,1 +1,1 @@
-htpasswd -c /Users/ec2-user/kelsa/pinot/data/nginx/.htpasswd jesusinsneakers
+htpasswd -c /home/ec2-user/app/kelsa/pinot/data/nginx/.htpasswd jesusinsneakers
