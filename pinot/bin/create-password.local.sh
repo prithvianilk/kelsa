@@ -1,0 +1,1 @@
+htpasswd -c /Users/prithvianilkumar/code/fun/kelsa/pinot/data/nginx/.htpasswd jesusinsneakers
