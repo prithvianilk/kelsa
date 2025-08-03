@@ -3,11 +3,11 @@ import time
 import sys
 import os
 import requests
-import base64
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from common.logger import Logger
 from application_details_fetcher import ApplicationDetailsFetcher
+from common.auth import encode_auth_header
 
 class WorkRecorder:
     def __init__(self, logger: Logger, username: str, password: str):
@@ -65,9 +65,7 @@ class ApiWorkRecorder(SingleFetcherWorkRecorder):
 
     def publish_work(self, work: dict):
         try:
-            credentials = f"{self.username}:{self.password}"
-            encoded_credentials = base64.b64encode(credentials.encode()).decode()
-            auth_header = f"Basic {encoded_credentials}"
+            auth_header = encode_auth_header(self.username, self.password)
 
             headers = {
                 "Content-Type": "application/json", 

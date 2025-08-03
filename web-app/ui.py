@@ -1,5 +1,4 @@
 import streamlit as st
-import base64
 
 def pretty_print_work_done(work_done_since_start_time):
     if work_done_since_start_time > 3600:
@@ -11,9 +10,3 @@ def to_app_metrics_page_link(base_url, app, epoch_time):
 
 def render_toggle_active_work():
     return st.toggle("Show only active work")
-
-def get_password():
-    try:
-        return st.query_params['password']
-    except:
-        pass

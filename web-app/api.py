@@ -1,7 +1,6 @@
 #! /usr/bin/env python3
 
 import uvicorn
-import base64
 from fastapi import FastAPI, Request, HTTPException
 from kafka import KafkaProducer
 from work import Work
