@@ -7,7 +7,7 @@ help: ## Show this help message
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "  %-15s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
 install: ## Install production dependencies
-	pip install -e .
+	uv pip install -e .
 
 install-dev: ## Install development dependencies
 	pip install -e ".[dev]"

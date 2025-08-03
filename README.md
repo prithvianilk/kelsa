@@ -6,6 +6,8 @@
 
 Kelsa is a comprehensive work tracking and analytics platform that captures desktop activity, processes it through a real-time data pipeline, and provides insightful visualizations of your productivity patterns.
 
+Pleae make sure you have uv installed, we use uv for our package management and ruff for linting.
+
 ## Architecture
 
 - **Desktop Recorder**: Captures application usage and activity
