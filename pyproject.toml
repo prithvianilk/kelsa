@@ -1,0 +1,160 @@
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "kelsa"
+version = "0.1.0"
+description = "Work tracking and analytics platform"
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = [
+    # Web app dependencies
+    "streamlit",
+    "pandas",
+    "pinotdb",
+    "altair",
+    "fastapi",
+    "uvicorn[standard]",
+    "kafka-python",
+    "pydantic",
+    "python-dotenv",
+    "passlib",
+    # Desktop recorder dependencies
+    "pyobjc-framework-quartz",
+    "requests",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7.0", "pytest-cov", "black", "ruff", "mypy", "pre-commit"]
+
+# Package discovery configuration
+[tool.setuptools.packages.find]
+include = ["common*"]
+exclude = ["pinot*", "desktop-recorder*", "web-app*"]
+
+# Ruff configuration - Modern Python linter and formatter
+[tool.ruff]
+line-length = 100
+target-version = "py38"
+extend-exclude = ["migrations", "build", "dist", ".eggs", "pinot/data"]
+
+[tool.ruff.lint]
+select = [
+    "E",      # pycodestyle errors
+    "W",      # pycodestyle warnings
+    "F",      # pyflakes
+    "I",      # isort
+    "B",      # flake8-bugbear
+    "C4",     # flake8-comprehensions
+    "UP",     # pyupgrade
+    "ARG001", # unused arguments
+    "C901",   # complex structure
+    "SIM",    # flake8-simplify
+    "TCH",    # flake8-type-checking
+    "TID",    # flake8-tidy-imports
+    "Q",      # flake8-quotes
+    "FBT",    # flake8-boolean-trap
+    "PLR",    # pylint refactor
+    "PLW",    # pylint warnings
+]
+ignore = [
+    "E501",    # line too long (handled by formatter)
+    "B008",    # do not perform function calls in argument defaults
+    "FBT001",  # boolean positional arg
+    "FBT002",  # boolean default arg
+    "PLR0913", # too many arguments
+    "PLR0915", # too many statements
+]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"] # ignore unused imports in __init__.py
+"test_*.py" = [
+    "ARG001",
+    "PLR2004",
+] # ignore unused args and magic values in tests
+"**/test_*.py" = ["ARG001", "PLR2004"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["common", "web-app", "desktop-recorder"]
+force-sort-within-sections = true
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+docstring-code-format = true
+line-ending = "auto"
+
+# Black configuration (backup formatter)
+[tool.black]
+line-length = 100
+target-version = ["py38", "py39", "py310", "py311"]
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  migrations
+  | build
+  | dist
+  | \.eggs
+  | pinot/data
+)/
+'''
+
+# MyPy configuration
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false # Start lenient, can be stricter later
+ignore_missing_imports = true
+show_error_codes = true
+
+[[tool.mypy.overrides]]
+module = ["pinotdb.*", "kafka.*", "streamlit.*", "altair.*"]
+ignore_missing_imports = true
+
+# Pytest configuration
+[tool.pytest.ini_options]
+testpaths = ["web-app", "desktop-recorder", "common"]
+python_files = ["test_*.py", "*_test.py"]
+addopts = [
+    "--strict-markers",
+    "--strict-config",
+    "--cov=.",
+    "--cov-report=term-missing",
+    "--cov-report=html",
+    "--cov-report=xml",
+]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+]
+
+# Coverage configuration
+[tool.coverage.run]
+source = ["."]
+omit = [
+    "*/tests/*",
+    "*/test_*",
+    "*/migrations/*",
+    "*/venv/*",
+    "*/.venv/*",
+    "*/build/*",
+    "*/dist/*",
+    "*/__pycache__/*",
+    "pinot/data/*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self.debug:",
+    "if settings.DEBUG",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if 0:",
+    "if __name__ == .__main__.:",
+    "class .*\\bProtocol\\):",
+    "@(abc\\.)?abstractmethod",
+]

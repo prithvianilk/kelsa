@@ -1,4 +1,0 @@
-kafka-python
-pyobjc-framework-quartz
-requests
-python-dotenv

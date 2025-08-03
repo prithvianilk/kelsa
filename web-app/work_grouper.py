@@ -1,6 +1,7 @@
 from abc import abstractmethod
 import re
 
+
 class ApplicationWorkGrouper:
     def __init__(self):
         pass
@@ -17,6 +18,7 @@ class ApplicationWorkGrouper:
     def regroup_work_by_tab_and_date_hour(self, work):
         pass
 
+
 class NoOpApplicationWorkGrouper(ApplicationWorkGrouper):
     def group_key(self):
         return "tab"
@@ -26,6 +28,7 @@ class NoOpApplicationWorkGrouper(ApplicationWorkGrouper):
 
     def regroup_work_by_tab_and_date_hour(self, work):
         return work
+
 
 class CursorProjectNameApplicationWorkGrouper(ApplicationWorkGrouper):
     def group_key(self):
@@ -39,8 +42,11 @@ class CursorProjectNameApplicationWorkGrouper(ApplicationWorkGrouper):
             if project_name not in work_by_project_name:
                 work_by_project_name[project_name] = 0
             work_by_project_name[project_name] += work_done_in_secs
-        return [[work_by_project_name[project_name], project_name] for project_name in work_by_project_name]
-    
+        return [
+            [work_by_project_name[project_name], project_name]
+            for project_name in work_by_project_name
+        ]
+
     def get_project_name(self, tab):
         items = tab.split(" — ")
         if len(items) == 2:
@@ -56,7 +62,11 @@ class CursorProjectNameApplicationWorkGrouper(ApplicationWorkGrouper):
             if (project_name, date_hour) not in work_by_project_name_and_date_hour:
                 work_by_project_name_and_date_hour[(project_name, date_hour)] = 0
             work_by_project_name_and_date_hour[(project_name, date_hour)] += work_done_in_secs
-        return [[work_by_project_name_and_date_hour[(project_name, date_hour)], project_name, date_hour] for project_name, date_hour in work_by_project_name_and_date_hour]
+        return [
+            [work_by_project_name_and_date_hour[(project_name, date_hour)], project_name, date_hour]
+            for project_name, date_hour in work_by_project_name_and_date_hour
+        ]
+
 
 class SlackTabApplicationWorkGrouper(ApplicationWorkGrouper):
     def group_key(self):
@@ -73,7 +83,10 @@ class SlackTabApplicationWorkGrouper(ApplicationWorkGrouper):
             if channel_name not in work_by_channel_name:
                 work_by_channel_name[channel_name] = 0
             work_by_channel_name[channel_name] += work_done_in_secs
-        return [[work_by_channel_name[channel_name], channel_name] for channel_name in work_by_channel_name]
+        return [
+            [work_by_channel_name[channel_name], channel_name]
+            for channel_name in work_by_channel_name
+        ]
 
     def regroup_work_by_tab_and_date_hour(self, work):
         work_by_channel_name_and_date_hour = {}
@@ -84,7 +97,11 @@ class SlackTabApplicationWorkGrouper(ApplicationWorkGrouper):
             if (channel_name, date_hour) not in work_by_channel_name_and_date_hour:
                 work_by_channel_name_and_date_hour[(channel_name, date_hour)] = 0
             work_by_channel_name_and_date_hour[(channel_name, date_hour)] += work_done_in_secs
-        return [[work_by_channel_name_and_date_hour[(channel_name, date_hour)], channel_name, date_hour] for channel_name, date_hour in work_by_channel_name_and_date_hour]
+        return [
+            [work_by_channel_name_and_date_hour[(channel_name, date_hour)], channel_name, date_hour]
+            for channel_name, date_hour in work_by_channel_name_and_date_hour
+        ]
+
 
 class ArcProjectNameApplicationWorkGrouper(ApplicationWorkGrouper):
     def group_key(self):
@@ -93,9 +110,9 @@ class ArcProjectNameApplicationWorkGrouper(ApplicationWorkGrouper):
     def regroup_work_by_tab(self, work):
         return [[w[0], self.clean_tab_name(w[1])] for w in work]
 
-    def remove_youtube_notification_count(self, tab): 
-        cleaned_tab = re.sub(r'\(([0-9]+)\) ', '', tab, count=1)
-        if len(cleaned_tab.replace(' ', '')) == 0:
+    def remove_youtube_notification_count(self, tab):
+        cleaned_tab = re.sub(r"\(([0-9]+)\) ", "", tab, count=1)
+        if len(cleaned_tab.replace(" ", "")) == 0:
             return tab
         return cleaned_tab
 
@@ -104,6 +121,7 @@ class ArcProjectNameApplicationWorkGrouper(ApplicationWorkGrouper):
 
     def regroup_work_by_tab_and_date_hour(self, work):
         return [[w[0], self.clean_tab_name(w[1]), w[2]] for w in work]
+
 
 class IdeaProjectNameApplicationWorkGrouper(ApplicationWorkGrouper):
     def group_key(self):
@@ -114,7 +132,7 @@ class IdeaProjectNameApplicationWorkGrouper(ApplicationWorkGrouper):
         if len(items) == 2:
             return items[0]
         return tab
-    
+
     def regroup_work_by_tab(self, work):
         work_by_project_name = {}
         for w in work:
@@ -123,7 +141,10 @@ class IdeaProjectNameApplicationWorkGrouper(ApplicationWorkGrouper):
             if project_name not in work_by_project_name:
                 work_by_project_name[project_name] = 0
             work_by_project_name[project_name] += work_done_in_secs
-        return [[work_by_project_name[project_name], project_name] for project_name in work_by_project_name]
+        return [
+            [work_by_project_name[project_name], project_name]
+            for project_name in work_by_project_name
+        ]
 
     def regroup_work_by_tab_and_date_hour(self, work):
         work_by_project_name_and_date_hour = {}
@@ -134,7 +155,11 @@ class IdeaProjectNameApplicationWorkGrouper(ApplicationWorkGrouper):
             if (project_name, date_hour) not in work_by_project_name_and_date_hour:
                 work_by_project_name_and_date_hour[(project_name, date_hour)] = 0
             work_by_project_name_and_date_hour[(project_name, date_hour)] += work_done_in_secs
-        return [[work_by_project_name_and_date_hour[(project_name, date_hour)], project_name, date_hour] for project_name, date_hour in work_by_project_name_and_date_hour]
+        return [
+            [work_by_project_name_and_date_hour[(project_name, date_hour)], project_name, date_hour]
+            for project_name, date_hour in work_by_project_name_and_date_hour
+        ]
+
 
 def get_work_grouper(application_name):
     if application_name == "Cursor":
