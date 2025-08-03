@@ -5,3 +5,4 @@ class Work(BaseModel):
     tab: str
     active: bool
     done_at: int
+    username: str

@@ -1,9 +1,10 @@
 import streamlit as st
 import pandas as pd
-from work_repo import PinotWorkRepo
+from work_repo import PinotWorkRepo, WorkRepo
 from pinot_conn import conn
 import altair as alt
 from ui import pretty_print_work_done, render_toggle_active_work
+from common.auth import decode_auth_header
 from work_grouper import get_work_grouper
 from pages.page_state import PageState
 
@@ -14,8 +15,8 @@ from common.logger import get_customised_logger, LogLevel
 logger = get_customised_logger(LogLevel.INFO)
 
 class ByAppPage(PageState):
-    def __init__(self):
-        self.work_repo = PinotWorkRepo(conn, logger)
+    def __init__(self, work_repo: WorkRepo):
+        self.work_repo = work_repo
 
     def render_pie_chart(self, work_done_since_start_time_by_tab, group_key):
         source = pd.DataFrame({
@@ -80,5 +81,7 @@ class ByAppPage(PageState):
         self.render_area_chart(work_done_since_start_time_by_group_and_date_hour, app_work_grouper.group_key())
 
 
-state = ByAppPage()
+username = decode_auth_header(st.context.headers.get("authorization"))[0]
+work_repo = PinotWorkRepo(conn, logger, username)
+state = ByAppPage(work_repo)
 state.render()

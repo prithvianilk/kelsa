@@ -1,4 +1,5 @@
 import streamlit as st
+import base64
 
 def pretty_print_work_done(work_done_since_start_time):
     if work_done_since_start_time > 3600:

@@ -3,21 +3,25 @@ import time
 import sys
 import os
 import requests
+import base64
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from common.logger import Logger
 from application_details_fetcher import ApplicationDetailsFetcher
 
 class WorkRecorder:
-    def __init__(self, logger: Logger):
+    def __init__(self, logger: Logger, username: str, password: str):
         self.logger = logger
+        self.username = username
+        self.password = password
 
     def build_work(self, app, tab, is_active):
         return {
             "application": app,
             "tab": tab,
             "active": is_active,
-            "done_at": int(time.time() * 1000)
+            "done_at": int(time.time() * 1000),
+            "username": self.username
         }
 
     @abstractmethod
@@ -29,8 +33,8 @@ class WorkRecorder:
         pass
 
 class SingleFetcherWorkRecorder(WorkRecorder):
-    def __init__(self, logger: Logger, fetcher: ApplicationDetailsFetcher):
-        super().__init__(logger)
+    def __init__(self, logger: Logger, fetcher: ApplicationDetailsFetcher, username: str, password: str):
+        super().__init__(logger, username, password)
         self.fetcher = fetcher
     
     def record_work(self):
@@ -44,8 +48,8 @@ class SingleFetcherWorkRecorder(WorkRecorder):
         self.logger.info(f"Recorded work: {work}")
 
 class KafkaWorkRecorder(SingleFetcherWorkRecorder):
-    def __init__(self, logger: Logger, fetcher: ApplicationDetailsFetcher, kafka_producer, topic_name):
-        super().__init__(logger, fetcher)
+    def __init__(self, logger: Logger, fetcher: ApplicationDetailsFetcher, kafka_producer, topic_name, username, password):
+        super().__init__(logger, fetcher, username, password)
         self.kafka_producer = kafka_producer
         self.topic_name = topic_name
 
@@ -55,14 +59,21 @@ class KafkaWorkRecorder(SingleFetcherWorkRecorder):
         self.logger.info(f"Published work to Kafka: {work}")
 
 class ApiWorkRecorder(SingleFetcherWorkRecorder):
-    def __init__(self, logger: Logger, fetcher: ApplicationDetailsFetcher, base_url: str, api_token: str = None):
-        super().__init__(logger, fetcher)
+    def __init__(self, logger: Logger, fetcher: ApplicationDetailsFetcher, base_url: str, username: str, password: str):
+        super().__init__(logger, fetcher, username, password)
         self.base_url = base_url.rstrip('/')
-        self.api_token = api_token
 
     def publish_work(self, work: dict):
         try:
-            headers = {"Content-Type": "application/json", "x-api-token": self.api_token}
+            credentials = f"{self.username}:{self.password}"
+            encoded_credentials = base64.b64encode(credentials.encode()).decode()
+            auth_header = f"Basic {encoded_credentials}"
+
+            headers = {
+                "Content-Type": "application/json", 
+                "Authorization": auth_header
+            }
+
             response = requests.post(
                 f"{self.base_url}/api/work",
                 json=work,
