@@ -10,9 +10,3 @@ def to_app_metrics_page_link(base_url, app, epoch_time):
 
 def render_toggle_active_work():
     return st.toggle("Show only active work")
-
-def get_password():
-    try:
-        return st.query_params['password']
-    except:
-        pass

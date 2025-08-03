@@ -5,6 +5,7 @@ from work_repo import PinotWorkRepo, WorkRepo
 import altair as alt
 from pinot_conn import conn
 from ui import pretty_print_work_done, render_toggle_active_work, to_app_metrics_page_link
+from common.auth import decode_auth_header
 from pages.page_state import PageState
 
 import os
@@ -14,8 +15,8 @@ from common.logger import get_customised_logger, LogLevel
 logger = get_customised_logger(LogLevel.INFO)
 
 class LandingPage(PageState):
-    def __init__(self):
-        pass
+    def __init__(self, work_repo: WorkRepo):
+        self.work_repo = work_repo
 
     def render_pie_chart(self, work_done_since_start_time_by_app):
         source = pd.DataFrame({
@@ -56,21 +57,19 @@ class LandingPage(PageState):
         )
         st.altair_chart(chart)
 
-    def get_work_done_since_start_time_by_app(self, work_repo: WorkRepo, epoch_time: int, only_active_work: bool):
+    def get_work_done_since_start_time_by_app(self, epoch_time: int, only_active_work: bool):
         if only_active_work:
-            return work_repo.get_work_done_since_start_time_and_activity_is_by_application(epoch_time, True)
+            return self.work_repo.get_work_done_since_start_time_and_activity_is_by_application(epoch_time, True)
         else:
-            return work_repo.get_work_done_since_start_time_by_application(epoch_time)
+            return self.work_repo.get_work_done_since_start_time_by_application(epoch_time)
 
-    def get_work_done_since_start_time_by_app_and_date_hour(self, work_repo: WorkRepo, epoch_time: int, only_active_work: bool):
+    def get_work_done_since_start_time_by_app_and_date_hour(self, epoch_time: int, only_active_work: bool):
         if only_active_work:
-            return work_repo.get_work_done_since_start_time_and_activity_is_by_app_and_date_hour(epoch_time, True)
+            return self.work_repo.get_work_done_since_start_time_and_activity_is_by_app_and_date_hour(epoch_time, True)
         else:
-            return work_repo.get_work_done_since_start_time_by_app_and_date_hour(epoch_time)
+            return self.work_repo.get_work_done_since_start_time_by_app_and_date_hour(epoch_time)
 
     def render(self):
-        work_repo = PinotWorkRepo(conn, logger)
-
         st.title("Your work at a glance")
         d = st.date_input("Since", datetime.date.today())
         t = st.time_input("At", datetime.time(0, 0))
@@ -78,7 +77,7 @@ class LandingPage(PageState):
 
         render_only_active_work = render_toggle_active_work()
 
-        work_done_since_start_time_by_app = self.get_work_done_since_start_time_by_app(work_repo, epoch_time, render_only_active_work)
+        work_done_since_start_time_by_app = self.get_work_done_since_start_time_by_app(epoch_time, render_only_active_work)
         work_done_since_start_time_by_app = list(filter(lambda w: w[0] > 60, work_done_since_start_time_by_app))
 
         df = pd.DataFrame(
@@ -90,8 +89,10 @@ class LandingPage(PageState):
         st.table(df)
         self.render_pie_chart(work_done_since_start_time_by_app)
 
-        work_done_since_start_time_by_app_and_date_hour = self.get_work_done_since_start_time_by_app_and_date_hour(work_repo, epoch_time, render_only_active_work)
+        work_done_since_start_time_by_app_and_date_hour = self.get_work_done_since_start_time_by_app_and_date_hour(epoch_time, render_only_active_work)
         self.render_area_chart(work_done_since_start_time_by_app_and_date_hour)
 
-state = LandingPage()
+username = decode_auth_header(st.context.headers.get("authorization"))[0]
+work_repo = PinotWorkRepo(conn, logger, username)
+state = LandingPage(work_repo)
 state.render()

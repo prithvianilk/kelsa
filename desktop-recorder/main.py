@@ -13,7 +13,7 @@ logger = get_customised_logger(LogLevel.INFO)
 config = DotEnvEnvironmentVariables("config.env")
 
 fetcher = FirstSuccessfulApplicationDetailsFetcher(logger, [JxaApplicationDetailsFetcher(), AppleScriptApplicationDetailsFetcher()])
-recorder = ApiWorkRecorder(logger, fetcher, config.get_config("API_URL"), config.get_config("API_TOKEN"))
+recorder = ApiWorkRecorder(logger, fetcher, config.get_config("API_URL"), config.get_config("USERNAME"), config.get_config("PASSWORD"))
 
 while True:
     recorder.record_work()
