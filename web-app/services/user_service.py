@@ -4,7 +4,8 @@ import sys
 
 from passlib.apache import HtpasswdFile
 
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# TODO: This is a hack, should use module imports instead
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 from common.logger import LogLevel, get_customised_logger
 
 logger = get_customised_logger(LogLevel.INFO)
