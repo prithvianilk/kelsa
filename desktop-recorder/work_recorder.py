@@ -1,13 +1,16 @@
 from abc import abstractmethod
-import time
-import sys
 import os
+import sys
+import time
+
 import requests
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from common.logger import Logger
 from application_details_fetcher import ApplicationDetailsFetcher
+
 from common.auth import encode_auth_header
+from common.logger import Logger
+
 
 class WorkRecorder:
     def __init__(self, logger: Logger, username: str, password: str):
@@ -21,7 +24,7 @@ class WorkRecorder:
             "tab": tab,
             "active": is_active,
             "done_at": int(time.time() * 1000),
-            "username": self.username
+            "username": self.username,
         }
 
     @abstractmethod
@@ -32,11 +35,14 @@ class WorkRecorder:
     def publish_work(self, work: dict):
         pass
 
+
 class SingleFetcherWorkRecorder(WorkRecorder):
-    def __init__(self, logger: Logger, fetcher: ApplicationDetailsFetcher, username: str, password: str):
+    def __init__(
+        self, logger: Logger, fetcher: ApplicationDetailsFetcher, username: str, password: str
+    ):
         super().__init__(logger, username, password)
         self.fetcher = fetcher
-    
+
     def record_work(self):
         app, tab, is_active = self.fetcher.get_active_application_details()
         if app is None:
@@ -47,8 +53,17 @@ class SingleFetcherWorkRecorder(WorkRecorder):
         self.publish_work(work)
         self.logger.info(f"Recorded work: {work}")
 
+
 class KafkaWorkRecorder(SingleFetcherWorkRecorder):
-    def __init__(self, logger: Logger, fetcher: ApplicationDetailsFetcher, kafka_producer, topic_name, username, password):
+    def __init__(
+        self,
+        logger: Logger,
+        fetcher: ApplicationDetailsFetcher,
+        kafka_producer,
+        topic_name,
+        username,
+        password,
+    ):
         super().__init__(logger, fetcher, username, password)
         self.kafka_producer = kafka_producer
         self.topic_name = topic_name
@@ -58,25 +73,27 @@ class KafkaWorkRecorder(SingleFetcherWorkRecorder):
         self.kafka_producer.flush()
         self.logger.info(f"Published work to Kafka: {work}")
 
+
 class ApiWorkRecorder(SingleFetcherWorkRecorder):
-    def __init__(self, logger: Logger, fetcher: ApplicationDetailsFetcher, base_url: str, username: str, password: str):
+    def __init__(
+        self,
+        logger: Logger,
+        fetcher: ApplicationDetailsFetcher,
+        base_url: str,
+        username: str,
+        password: str,
+    ):
         super().__init__(logger, fetcher, username, password)
-        self.base_url = base_url.rstrip('/')
+        self.base_url = base_url.rstrip("/")
 
     def publish_work(self, work: dict):
         try:
             auth_header = encode_auth_header(self.username, self.password)
 
-            headers = {
-                "Content-Type": "application/json", 
-                "Authorization": auth_header
-            }
+            headers = {"Content-Type": "application/json", "Authorization": auth_header}
 
             response = requests.post(
-                f"{self.base_url}/api/work",
-                json=work,
-                headers=headers,
-                timeout=10
+                f"{self.base_url}/api/work", json=work, headers=headers, timeout=10
             )
             response.raise_for_status()
             self.logger.info(f"Successfully published work to API: {work}")

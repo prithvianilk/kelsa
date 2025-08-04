@@ -1,36 +1,173 @@
-# kelsa
+# Kelsa
 
-- to track and analysis my work and time
-- basically: my computer tells me what i'm doing → kafka → pinot → pretty charts that make me feel bad about my productivity
+**Track and analyze your work and time**
 
-## Desktop Recorder Setup
+> My computer tells me what I'm doing → Kafka → Pinot → pretty charts that make me feel bad about my productivity
 
-The desktop recorder captures your computer activity and sends it to the Kelsa API for tracking and analysis.
+Kelsa is a comprehensive work tracking and analytics platform that captures desktop activity, processes it through a real-time data pipeline, and provides insightful visualizations of your productivity patterns.
 
-### Configuration
+Pleae make sure you have uv installed, we use uv for our package management and ruff for linting.
 
-Create a `config.env` file in the `desktop-recorder/` directory with the following values:
+## Architecture
+
+- **Desktop Recorder**: Captures application usage and activity
+- **Kafka**: Streams activity data in real-time
+- **Apache Pinot**: Stores and processes time-series analytics data
+- **Web App**: Streamlit-based dashboard with FastAPI backend
+
+## Quick Start
+
+### Prerequisites
+
+- Python 3.8+
+- Docker and Docker Compose (for Pinot/Kafka)
+
+### Development Setup
+
+1. **Clone and setup the project:**
+
+   ```bash
+   git clone <repository-url>
+   cd kelsa
+   make setup-dev
+   ```
+
+2. **Configure environment:**
+
+   ```bash
+   cp .env.example .env
+   # Edit .env with your configuration
+   ```
+
+3. **Start infrastructure:**
+
+   ```bash
+   make docker-up
+   ```
+
+4. **Run the applications:**
+
+   ```bash
+   # Terminal 1: Web app
+   make run-web
+
+   # Terminal 2: Desktop recorder
+   make run-recorder
+   ```
+
+### Production Setup
+
+1. **Install dependencies:**
+
+   ```bash
+   make install
+   ```
+
+2. **Configure environment variables** (see `.env.example`)
+
+3. **Start services:**
+   ```bash
+   make docker-up
+   python web-app/main.py
+   python desktop-recorder/main.py
+   ```
+
+## Configuration
+
+### Environment Variables
+
+Copy `.env.example` to `.env` and configure:
 
 ```bash
-API_URL=http://your-server-ip:8000
+# Database
+PINOT_BROKER_URL=localhost:8099
+PINOT_CONTROLLER_URL=localhost:9000
+
+# Kafka
+KAFKA_BOOTSTRAP_SERVERS=localhost:9092
+KAFKA_TOPIC_WORK=work_events
+
+# Authentication
+SECRET_KEY=your-secret-key-here
 USERNAME=your-username
 PASSWORD=your-password
+
+# Application
+DEBUG=false
+STREAMLIT_SERVER_PORT=8501
+FASTAPI_PORT=8000
 ```
 
-#### Required Configuration Values:
+### Desktop Recorder
 
-- **`API_URL`**: The URL of your Kelsa web application API endpoint
-  - Format: `http://IP_ADDRESS:8000` or `https://your-domain.com`
-  - Example: `http://65.0.0.0:8000`
+Create `config.env` in the project root or configure via environment variables:
 
-- **`USERNAME`**: Your authentication username
+- **`API_URL`**: Web app endpoint (e.g., `http://localhost:8000`)
+- **`USERNAME`**: Authentication username
+- **`PASSWORD`**: Authentication password
 
-- **`PASSWORD`**: Your authentication password
+## Development
 
-### Running the Desktop Recorder
+### Available Commands
 
-1. Create your `config.env` file with the required values
-2. Install dependencies: `pip install -r desktop-recorder/requirements.txt`
-3. Run the recorder: `python desktop-recorder/main.py`
+```bash
+make help              # Show all available commands
+make setup-dev         # Setup development environment
+make lint             # Run linting checks
+make format           # Format code with ruff
+make test             # Run tests
+make test-cov         # Run tests with coverage
+make clean            # Clean temporary files
+```
 
-The recorder will start capturing your desktop activity and send data to your Kelsa instance for tracking and analysis.
+### Code Quality
+
+The project uses:
+
+- **Ruff**: Fast Python linter and formatter
+- **MyPy**: Static type checking
+- **Pytest**: Testing framework
+- **Pre-commit**: Git hooks for quality checks
+
+### Project Structure
+
+```
+kelsa/
+├── common/              # Shared utilities
+├── desktop-recorder/    # Activity capture service
+├── web-app/            # Streamlit dashboard + FastAPI
+├── pinot/              # Database schemas and config
+└── pyproject.toml      # Project configuration
+```
+
+## Usage
+
+1. **Start the infrastructure** (Kafka + Pinot):
+
+   ```bash
+   make docker-up
+   ```
+
+2. **Launch the web dashboard**:
+
+   ```bash
+   make run-web
+   ```
+
+   Visit: http://localhost:8501
+
+3. **Start activity tracking**:
+   ```bash
+   make run-recorder
+   ```
+
+## Contributing
+
+1. Setup development environment: `make setup-dev`
+2. Make your changes
+3. Run quality checks: `make lint format test`
+4. Submit a pull request
+
+## License
+
+[Add your license here]

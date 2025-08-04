@@ -1,7 +1,3 @@
 import pinotdb
 
-conn = pinotdb.connect(
-    host="localhost",
-    port=8099,
-    path="/query/sql"
-)
+conn = pinotdb.connect(host="localhost", port=8099, path="/query/sql")

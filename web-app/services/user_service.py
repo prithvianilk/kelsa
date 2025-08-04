@@ -1,10 +1,14 @@
 from abc import abstractmethod
-from passlib.apache import HtpasswdFile
-import sys
 import os
+import sys
+
+from passlib.apache import HtpasswdFile
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from common.logger import get_customised_logger, LogLevel
+from common.logger import LogLevel, get_customised_logger
+
 logger = get_customised_logger(LogLevel.INFO)
+
 
 class UserService:
     def __init__(self):
@@ -13,6 +17,7 @@ class UserService:
     @abstractmethod
     def verify_credentials(self, username: str, password: str):
         pass
+
 
 class HtpasswdUserService(UserService):
     def __init__(self, path: str):

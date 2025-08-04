@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 
+
 class Work(BaseModel):
     application: str
     tab: str

@@ -1,0 +1,9 @@
+# Development requirements - alternative to pyproject.toml[dev]
+# Use this if you prefer requirements.txt format for development
+pytest>=7.0
+pytest-cov
+black
+ruff
+mypy
+pre-commit
+types-requests
