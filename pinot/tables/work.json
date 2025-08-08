@@ -23,15 +23,14 @@
         "streamIngestionConfig": {
             "streamConfigMaps": [
                 {
-                    "realtime.segment.flush.threshold.rows": "0",
                     "stream.kafka.decoder.prop.format": "JSON",
                     "key.serializer": "org.apache.kafka.common.serialization.ByteArraySerializer",
                     "stream.kafka.decoder.class.name": "org.apache.pinot.plugin.inputformat.json.JSONMessageDecoder",
                     "streamType": "kafka",
                     "value.serializer": "org.apache.kafka.common.serialization.ByteArraySerializer",
                     "stream.kafka.broker.list": "kafka:9092",
-                    "realtime.segment.flush.threshold.segment.rows": "100",
-                    "realtime.segment.flush.threshold.time": "1s",
+                    "realtime.segment.flush.threshold.rows": "100000",
+                    "realtime.segment.flush.threshold.time": "1h",
                     "stream.kafka.consumer.factory.class.name": "org.apache.pinot.plugin.stream.kafka20.KafkaConsumerFactory",
                     "stream.kafka.consumer.prop.auto.offset.reset": "smallest",
                     "stream.kafka.topic.name": "work-topic"
