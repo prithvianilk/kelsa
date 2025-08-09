@@ -11,16 +11,21 @@ from work_grouper import get_work_grouper
 from work_repo import PinotWorkRepo, WorkRepo
 
 from common.auth import decode_auth_header
+from services.open_ai import get_open_ai_client
+from services.work_summarisation_service import OpenAIGpt5NanoSummarisationService, SummarisationService
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from common.config import DotEnvEnvironmentVariables
 from common.logger import LogLevel, get_customised_logger
 
 logger = get_customised_logger(LogLevel.INFO)
+config = DotEnvEnvironmentVariables("config.env")
 
 
 class ByAppPage(PageState):
-    def __init__(self, work_repo: WorkRepo):
+    def __init__(self, work_repo: WorkRepo, summarisation_service: SummarisationService):
         self.work_repo = work_repo
+        self.summarisation_service = summarisation_service
 
     def render_pie_chart(self, work_done_since_start_time_by_tab, group_key):
         source = pd.DataFrame(
@@ -81,6 +86,11 @@ class ByAppPage(PageState):
                 epoch_time, app
             )
 
+    def render_work_summary(self, work_done_since_start_time_by_app_and_date_hour):
+        if st.button("Summarise work"):
+            work_summary = self.summarisation_service.summarise_work(work_done_since_start_time_by_app_and_date_hour)
+            st.write(work_summary)
+
     def render(self):
         app = st.query_params["app"]
         epoch_time = int(st.query_params["epoch_time"])
@@ -130,9 +140,12 @@ class ByAppPage(PageState):
         self.render_area_chart(
             work_done_since_start_time_by_group_and_date_hour, app_work_grouper.group_key()
         )
+        self.render_work_summary(work_done_since_start_time_by_group_and_date_hour)
 
 
 username = decode_auth_header(st.context.headers.get("authorization"))[0]
 work_repo = PinotWorkRepo(conn, logger, username)
-state = ByAppPage(work_repo)
+open_ai_client = get_open_ai_client(config.get_config("OPEN_AI_API_TOKEN"))
+summarisation_service = OpenAIGpt5NanoSummarisationService(logger, open_ai_client)
+state = ByAppPage(work_repo, summarisation_service)
 state.render()
