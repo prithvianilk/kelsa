@@ -12,13 +12,14 @@ from work_repo import PinotWorkRepo, WorkRepo
 
 from common.auth import decode_auth_header
 from services.open_ai import get_open_ai_client
-from services.work_summarisation_service import OpenAIGpt5NanoSummarisationService, SummarisationService
+from services.work_summarisation_service import ArcWorkSummarisationService, OpenAIGpt4oMiniLlm, SummarisationService
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from common.config import DotEnvEnvironmentVariables
 from common.logger import LogLevel, get_customised_logger
 
-logger = get_customised_logger(LogLevel.INFO)
+info_logger = get_customised_logger(LogLevel.INFO)
+debug_logger = get_customised_logger(LogLevel.DEBUG)
 config = DotEnvEnvironmentVariables("config.env")
 
 
@@ -86,6 +87,9 @@ class ByAppPage(PageState):
                 epoch_time, app
             )
 
+    def is_work_summary_enabled(self, app: str) -> bool:
+        return app == "Arc"
+
     def render_work_summary(self, work_done_since_start_time_by_app_and_date_hour):
         if st.button("Summarise work"):
             work_summary = self.summarisation_service.summarise_work(work_done_since_start_time_by_app_and_date_hour)
@@ -140,12 +144,15 @@ class ByAppPage(PageState):
         self.render_area_chart(
             work_done_since_start_time_by_group_and_date_hour, app_work_grouper.group_key()
         )
-        self.render_work_summary(work_done_since_start_time_by_group_and_date_hour)
+
+        if self.is_work_summary_enabled(app):
+            self.render_work_summary(work_done_since_start_time_by_group_and_date_hour)
 
 
 username = decode_auth_header(st.context.headers.get("authorization"))[0]
-work_repo = PinotWorkRepo(conn, logger, username)
+work_repo = PinotWorkRepo(conn, info_logger, username)
 open_ai_client = get_open_ai_client(config.get_config("OPEN_AI_API_TOKEN"))
-summarisation_service = OpenAIGpt5NanoSummarisationService(logger, open_ai_client)
+llm = OpenAIGpt4oMiniLlm(info_logger, open_ai_client)
+summarisation_service = ArcWorkSummarisationService(info_logger, llm)
 state = ByAppPage(work_repo, summarisation_service)
 state.render()
