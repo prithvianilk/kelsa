@@ -74,30 +74,6 @@ Pleae make sure you have uv installed, we use uv for our package management and 
 
 ## Configuration
 
-### Environment Variables
-
-Copy `.env.example` to `.env` and configure:
-
-```bash
-# Database
-PINOT_BROKER_URL=localhost:8099
-PINOT_CONTROLLER_URL=localhost:9000
-
-# Kafka
-KAFKA_BOOTSTRAP_SERVERS=localhost:9092
-KAFKA_TOPIC_WORK=work_events
-
-# Authentication
-SECRET_KEY=your-secret-key-here
-USERNAME=your-username
-PASSWORD=your-password
-
-# Application
-DEBUG=false
-STREAMLIT_SERVER_PORT=8501
-FASTAPI_PORT=8000
-```
-
 ### Desktop Recorder
 
 Create `config.env` in the project root or configure via environment variables:
@@ -105,6 +81,13 @@ Create `config.env` in the project root or configure via environment variables:
 - **`API_URL`**: Web app endpoint (e.g., `http://localhost:8000`)
 - **`USERNAME`**: Authentication username
 - **`PASSWORD`**: Authentication password
+
+
+### Web App
+
+Create `config.env` in the project root or configure via environment variables:
+
+- **`HTPASSWD_FILE`**: The path to the htpasswd file (e.g., `~/users/me/kelsa/pinot/data/nginx/.htpasswd`)
 
 ## Development
 
