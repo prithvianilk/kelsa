@@ -60,15 +60,15 @@ class PinotWorkRepo(WorkRepo):
         self.logger = logger
 
     def get_work_done_since_start_time_by_application(self, start_time: int):
-        query = f"""
+        query = """
             select count (1) work_done_in_seconds, application from work
-            where done_at >= {start_time} and username = '{self.username}'
+            where done_at >= %s and username = %s
             group by 2
             order by 1 desc
             limit 1000;
         """
         curs = self.conn.cursor()
-        curs.execute(query)
+        curs.execute(query, (start_time, self.username))
         result = curs.fetchall()
         self.logger.debug(f"Ran query: {query}\nResult: {result}")
         return result
@@ -78,27 +78,27 @@ class PinotWorkRepo(WorkRepo):
     ):
         query = f"""
             select count (1) work_done_in_seconds, application from work
-            where done_at >= {start_time} and active = {active} and username = '{self.username}'
+            where done_at >= %s and active = %s and username = %s
             group by 2
             order by 1 desc
             limit 1000;
         """
         curs = self.conn.cursor()
-        curs.execute(query)
+        curs.execute(query, (start_time, active, self.username))
         result = curs.fetchall()
         self.logger.debug(f"Ran query: {query}\nResult: {result}")
         return result
 
     def get_work_done_since_start_time_and_app_is_by_tab(self, start_time: int, app: str):
-        query = f"""
+        query = """
             select count (1) work_done_in_seconds, tab from work
-            where done_at >= {start_time} and application = '{app}' and username = '{self.username}'
+            where done_at >= %s and application = %s and username = %s
             group by 2
             order by 1 desc
             limit 1000;
         """
         curs = self.conn.cursor()
-        curs.execute(query)
+        curs.execute(query, (start_time, app, self.username))
         result = curs.fetchall()
         self.logger.debug(f"Ran query: {query}\nResult: {result}")
         return result
@@ -108,13 +108,13 @@ class PinotWorkRepo(WorkRepo):
     ):
         query = f"""
             select count (1) work_done_in_seconds, tab from work
-            where done_at >= {start_time} and application = '{app}' and active = {active} and username = '{self.username}'
+            where done_at >= %s and application = %s and active = %s and username = %s
             group by 2
             order by 1 desc
             limit 1000;
         """
         curs = self.conn.cursor()
-        curs.execute(query)
+        curs.execute(query, (start_time, app, active, self.username))
         result = curs.fetchall()
         self.logger.debug(f"Ran query: {query}\nResult: {result}")
         return result
@@ -132,14 +132,14 @@ class PinotWorkRepo(WorkRepo):
                     '1:MILLISECONDS'
                 ) done_at
             from work
-            where done_at >= {start_time} and application = '{app}' and username = '{self.username}'
+            where done_at >= %s and application = %s and username = %s
             group by 2, 3
             order by 3 desc,
                 1 desc
             limit 1000;
         """
         curs = self.conn.cursor()
-        curs.execute(query)
+        curs.execute(query, (start_time, app, self.username))
         result = curs.fetchall()
         self.logger.debug(f"Ran query: {query}\nResult: {result}")
         return result
@@ -157,18 +157,18 @@ class PinotWorkRepo(WorkRepo):
                     '1:MILLISECONDS'
                 ) done_at
             from work
-            where done_at >= {start_time} and application = '{app}' and active = {active} and username = '{self.username}'
+            where done_at >= %s and application = %s and active = %s and username = %s
             group by 2, 3
             order by 3 desc,
                 1 desc
             limit 1000;
         """
         curs = self.conn.cursor()
-        curs.execute(query)
+        curs.execute(query, (start_time, app, active, self.username))
         return curs.fetchall()
 
     def get_work_done_since_start_time_by_app_and_date_hour(self, start_time: int):
-        query = f"""
+        query = """
             select count(1) work_done_in_seconds,
                 application,
                 DATETIMECONVERT(
@@ -178,14 +178,14 @@ class PinotWorkRepo(WorkRepo):
                     '1:MILLISECONDS'
                 ) done_at
             from work
-            where done_at >= {start_time} and username = '{self.username}'
+            where done_at >= %s and username = %s
             group by 2, 3
             order by 3 desc,
                 1 desc
             limit 1000;
         """
         curs = self.conn.cursor()
-        curs.execute(query)
+        curs.execute(query, (start_time, self.username))
         result = curs.fetchall()
         self.logger.debug(f"Ran query: {query}\nResult: {result}")
         return result
@@ -203,14 +203,14 @@ class PinotWorkRepo(WorkRepo):
                     '1:MILLISECONDS'
                 ) done_at
             from work
-            where done_at >= {start_time} and active = {active} and username = '{self.username}'
+            where done_at >= %s and active = %s and username = %s
             group by 2, 3
             order by 3 desc,
                 1 desc
             limit 1000;
         """
         curs = self.conn.cursor()
-        curs.execute(query)
+        curs.execute(query, (start_time, active, self.username))
         result = curs.fetchall()
         self.logger.debug(f"Ran query: {query}\nResult: {result}")
         return result
