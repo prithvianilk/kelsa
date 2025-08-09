@@ -12,6 +12,7 @@ services:
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
+      JAVA_OPTS: "-Xmx128M -Xms128M"
     networks:
       - pinot-demo
     command: ["sh", "-c", "mkdir -p /data /datalog && exec zkServer.sh start-foreground"]
@@ -39,6 +40,7 @@ services:
       KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
       KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,EXTERNAL://localhost:9094
       ALLOW_PLAINTEXT_LISTENER: yes
+      JAVA_OPTS: "-Xmx128M -Xms128M"
 
     depends_on:
       pinot-zookeeper:
@@ -65,7 +67,7 @@ services:
       - /home/ec2-user/app/kelsa/pinot:/app
       - /home/ec2-user/app/kelsa/pinot/data/controller:/tmp/data/PinotController
     environment:
-      JAVA_OPTS: "-Dplugins.dir=/opt/pinot/plugins -Xms256M -Xmx256M -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -Xloggc:gc-pinot-controller.log"
+      JAVA_OPTS: "-Dplugins.dir=/opt/pinot/plugins -Xms128M -Xmx128M -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -Xloggc:gc-pinot-controller.log"
     depends_on:
       pinot-zookeeper:
         condition: service_healthy
@@ -101,7 +103,7 @@ services:
       - /home/ec2-user/app/kelsa/pinot:/app
       - /home/ec2-user/app/kelsa/pinot/data/broker:/tmp/data/broker
     environment:
-      JAVA_OPTS: "-Dplugins.dir=/opt/pinot/plugins -Xms256M -Xmx256M -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -Xloggc:gc-pinot-broker.log"
+      JAVA_OPTS: "-Dplugins.dir=/opt/pinot/plugins -Xms128M -Xmx128M -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -Xloggc:gc-pinot-broker.log"
     depends_on:
       pinot-controller:
         condition: service_healthy
@@ -125,7 +127,7 @@ services:
     ports:
       - "8098:8098"
     environment:
-      JAVA_OPTS: "-Dplugins.dir=/opt/pinot/plugins -Xms256M -Xmx256M -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -Xloggc:gc-pinot-server.log"
+      JAVA_OPTS: "-Dplugins.dir=/opt/pinot/plugins -Xms128M -Xmx128M -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -Xloggc:gc-pinot-server.log"
     depends_on:
       pinot-broker:
         condition: service_healthy

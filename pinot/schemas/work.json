@@ -11,13 +11,12 @@
         },
         {
             "name": "active",
-            "dataType": "BOOLEAN",
-            "defaultValue": "true"
+            "dataType": "BOOLEAN"
         },
         {
             "name": "username",
             "dataType": "STRING",
-            "defaultValue": "jesusinsneakers"
+            "defaultNullValue": "jesusinsneakers"
         }
     ],
     "metricFieldSpecs": [],

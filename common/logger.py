@@ -1,7 +1,8 @@
 from abc import abstractmethod
 from enum import Enum
 
-# TODO: Use an actual logging library :P 
+# TODO: Use an actual logging library :P
+
 
 class Logger:
     def __init__(self):
@@ -19,6 +20,7 @@ class Logger:
     def error(self, message):
         pass
 
+
 class LogLevel(Enum):
     ERROR = 0
     INFO = 1
@@ -26,6 +28,7 @@ class LogLevel(Enum):
 
     def __ge__(self, other):
         return self.value >= other.value
+
 
 class LevelAndAboveLogger(Logger):
     def __init__(self, logger: Logger, level: LogLevel):
@@ -44,6 +47,7 @@ class LevelAndAboveLogger(Logger):
         if self.level >= LogLevel.ERROR:
             self.logger.error(message)
 
+
 class ConsoleLogger(Logger):
     def info(self, message):
         print(message)
@@ -53,6 +57,7 @@ class ConsoleLogger(Logger):
 
     def error(self, message):
         print(message)
+
 
 class LevelPrefixedLogger(Logger):
     def __init__(self, logger: Logger):
@@ -64,9 +69,10 @@ class LevelPrefixedLogger(Logger):
 
     def debug(self, message):
         self.logger.debug(f"DEBUG:     {message}")
-    
+
     def error(self, message):
         self.logger.error(f"ERROR:     {message}")
+
 
 class NoopLogger(Logger):
     def info(self, message):
@@ -77,6 +83,7 @@ class NoopLogger(Logger):
 
     def error(self, message):
         pass
+
 
 def get_customised_logger(level: LogLevel):
     return LevelAndAboveLogger(LevelPrefixedLogger(ConsoleLogger()), level)
