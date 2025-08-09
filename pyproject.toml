@@ -23,6 +23,7 @@ dependencies = [
     # Desktop recorder dependencies
     "pyobjc-framework-quartz",
     "requests",
+    "openai"
 ]
 
 [project.optional-dependencies]
