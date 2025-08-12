@@ -6,13 +6,14 @@ from pages.page_state import PageState
 import pandas as pd
 from pinot_conn import conn
 import streamlit as st
-from ui import pretty_print_work_done, render_toggle_active_work
+from ui import pretty_print_work_done, render_toggle_active_work, render_total_time_spent
 from work_grouper import get_work_grouper
 from work_repo import PinotWorkRepo, WorkRepo
-
+from time_util import seconds_to_minutes
 from common.auth import decode_auth_header
 from services.open_ai import get_open_ai_client
 from services.work_summarisation_service import ArcWorkSummarisationService, OpenAIGpt4oMiniLlm, SummarisationService
+
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from common.config import DotEnvEnvironmentVariables
@@ -31,7 +32,7 @@ class ByAppPage(PageState):
     def render_pie_chart(self, work_done_since_start_time_by_tab, group_key):
         source = pd.DataFrame(
             {
-                "values": [w[0] // 60 for w in work_done_since_start_time_by_tab],
+                "values": [seconds_to_minutes(w[0]) for w in work_done_since_start_time_by_tab],
                 group_key: [w[1] for w in work_done_since_start_time_by_tab],
             }
         )
@@ -51,7 +52,7 @@ class ByAppPage(PageState):
         )
         source = pd.DataFrame(
             {
-                "values": [w[0] // 60 for w in work_done_since_start_time_by_tab_and_date_hour],
+                "values": [seconds_to_minutes(w[0]) for w in work_done_since_start_time_by_tab_and_date_hour],
                 group_key: [w[1] for w in work_done_since_start_time_by_tab_and_date_hour],
                 "done_at": [
                     pd.to_datetime(w[2]) for w in work_done_since_start_time_by_tab_and_date_hour
@@ -109,6 +110,8 @@ class ByAppPage(PageState):
         work_done_since_start_time_by_tab = self.get_work_done_since_start_time_by_tab(
             epoch_time, app, render_only_active_work
         )
+
+        render_total_time_spent(sum([w[0] for w in work_done_since_start_time_by_tab]))
 
         app_work_grouper = get_work_grouper(app)
         work_done_since_start_time_by_group = app_work_grouper.regroup_work_by_tab(

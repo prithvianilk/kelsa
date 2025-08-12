@@ -7,9 +7,9 @@ from pages.page_state import PageState
 import pandas as pd
 from pinot_conn import conn
 import streamlit as st
-from ui import pretty_print_work_done, render_toggle_active_work, to_app_metrics_page_link
+from ui import pretty_print_work_done, render_toggle_active_work, render_total_time_spent, to_app_metrics_page_link
 from work_repo import PinotWorkRepo, WorkRepo
-
+from time_util import seconds_to_minutes
 from common.auth import decode_auth_header
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -24,7 +24,7 @@ class LandingPage(PageState):
     def render_pie_chart(self, work_done_since_start_time_by_app):
         source = pd.DataFrame(
             {
-                "values": [w[0] // 60 for w in work_done_since_start_time_by_app],
+                "values": [seconds_to_minutes(w[0]) for w in work_done_since_start_time_by_app],
                 "app": [w[1] for w in work_done_since_start_time_by_app],
             }
         )
@@ -44,7 +44,7 @@ class LandingPage(PageState):
         )
         source = pd.DataFrame(
             {
-                "values": [w[0] // 60 for w in work_done_since_start_time_by_app_and_date_hour],
+                "values": [seconds_to_minutes(w[0]) for w in work_done_since_start_time_by_app_and_date_hour],
                 "app": [w[1] for w in work_done_since_start_time_by_app_and_date_hour],
                 "done_at": [
                     pd.to_datetime(w[2]) for w in work_done_since_start_time_by_app_and_date_hour
@@ -68,7 +68,7 @@ class LandingPage(PageState):
         )
         source = pd.DataFrame(
             {
-                "values": [w[0] // 60 for w in work_done_since_start_time_by_app_and_date_hour],
+                "values": [seconds_to_minutes(w[0]) for w in work_done_since_start_time_by_app_and_date_hour],
                 "app": [w[1] for w in work_done_since_start_time_by_app_and_date_hour],
                 "done_at": [
                     pd.to_datetime(w[2]) for w in work_done_since_start_time_by_app_and_date_hour
@@ -113,6 +113,7 @@ class LandingPage(PageState):
         work_done_since_start_time_by_app = self.get_work_done_since_start_time_by_app(
             epoch_time, render_only_active_work
         )
+        render_total_time_spent(sum([w[0] for w in work_done_since_start_time_by_app]))
         work_done_since_start_time_by_app = list(
             filter(lambda w: w[0] > 60, work_done_since_start_time_by_app)
         )
