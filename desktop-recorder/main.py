@@ -10,6 +10,7 @@ from application_details_fetcher import (
     JxaApplicationDetailsFetcher,
 )
 from work_recorder import ApiWorkRecorder
+from file_locker import FileLocker
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from common.config import DotEnvEnvironmentVariables
@@ -29,6 +30,7 @@ recorder = ApiWorkRecorder(
     config.get_config("PASSWORD"),
 )
 
-while True:
-    recorder.record_work()
-    time.sleep(1)
+with FileLocker("/tmp/kelsa-desktop-recorder.lock"):
+    while True:
+        recorder.record_work()
+        time.sleep(1)
