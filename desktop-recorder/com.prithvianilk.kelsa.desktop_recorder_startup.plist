@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" 
+"http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.prithvianilk.kelsa.desktop_recorder_startup</string>
+    <key>Program</key>
+    <string>/Users/prithvianilkumar/code/fun/kelsa/desktop-recorder/desktop-recorder.sh</string>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>KeepAlive</key>
+    <true/>
+    <key>StandardOutPath</key>
+    <string>/tmp/kelsa-desktop-recorder.log</string>
+    <key>StandardErrorPath</key>
+    <string>/tmp/kelsa-desktop-recorder.err</string>
+</dict>
+</plist>

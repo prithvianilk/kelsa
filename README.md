@@ -82,6 +82,80 @@ Create `config.env` in the project root or configure via environment variables:
 - **`USERNAME`**: Authentication username
 - **`PASSWORD`**: Authentication password
 
+#### Setting up as a LaunchAgent (macOS)
+
+To have the desktop recorder start automatically at login:
+
+1. Create a desktop-recorder.sh script:
+   ```bash
+   cat > /path/to/kelsa/desktop-recorder/desktop-recorder.sh << EOF
+   #!/bin/bash
+
+   # Log start time
+   echo "Starting desktop recorder at \$(date)" >> /tmp/kelsa-desktop-recorder.log
+
+   # Set working directory
+   cd /path/to/kelsa/desktop-recorder
+
+   # Activate virtual environment
+   source /path/to/kelsa/desktop-recorder/.env/bin/activate
+
+   # Install package in development mode
+   pip install -e /path/to/kelsa
+
+   # Run the recorder
+   exec python3 /path/to/kelsa/desktop-recorder/main.py
+   EOF
+   ```
+   (Replace `/path/to/kelsa` with your actual path)
+
+2. Make the script executable:
+   ```bash
+   chmod +x /path/to/kelsa/desktop-recorder/desktop-recorder.sh
+   ```
+
+3. Create a LaunchAgent plist file:
+   ```bash
+   cat > ~/Library/LaunchAgents/com.prithvianilk.kelsa.desktop_recorder_startup.plist << EOF
+   <?xml version="1.0" encoding="UTF-8"?>
+   <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" 
+   "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+   <plist version="1.0">
+   <dict>
+       <key>Label</key>
+       <string>com.prithvianilk.kelsa.desktop_recorder_startup</string>
+       <key>Program</key>
+       <string>/path/to/kelsa/desktop-recorder/desktop-recorder.sh</string>
+       <key>RunAtLoad</key>
+       <true/>
+       <key>KeepAlive</key>
+       <true/>
+       <key>StandardOutPath</key>
+       <string>/tmp/kelsa-desktop-recorder.log</string>
+       <key>StandardErrorPath</key>
+       <string>/tmp/kelsa-desktop-recorder.err</string>
+   </dict>
+   </plist>
+   EOF
+   ```
+   (Replace `/path/to/kelsa` with your actual path)
+
+4. Load the LaunchAgent:
+   ```bash
+   launchctl load -w ~/Library/LaunchAgents/com.prithvianilk.kelsa.desktop_recorder_startup.plist
+   ```
+
+5. To verify it's running:
+   ```bash
+   launchctl list | grep kelsa
+   ```
+
+6. For troubleshooting, check the log files:
+   ```bash
+   cat /tmp/kelsa-desktop-recorder.log
+   cat /tmp/kelsa-desktop-recorder.err
+   ```
+
 
 ### Web App
 
