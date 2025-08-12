@@ -113,7 +113,9 @@ class LandingPage(PageState):
         work_done_since_start_time_by_app = self.get_work_done_since_start_time_by_app(
             epoch_time, render_only_active_work
         )
+
         render_total_time_spent(sum([w[0] for w in work_done_since_start_time_by_app]))
+        
         work_done_since_start_time_by_app = list(
             filter(lambda w: w[0] > 60, work_done_since_start_time_by_app)
         )

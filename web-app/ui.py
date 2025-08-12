@@ -1,5 +1,5 @@
 import streamlit as st
-from time_util import seconds_to_minutes
+from time_util import seconds_to_hours
 
 def pretty_print_work_done(work_done_since_start_time):
     if work_done_since_start_time > 3600:
@@ -16,4 +16,4 @@ def render_toggle_active_work():
 
 
 def render_total_time_spent(total_time_spent):
-    st.write("Total time spent: ", seconds_to_minutes(total_time_spent), "minutes")
+    st.write("Total time spent: ", seconds_to_hours(total_time_spent), "hours")
