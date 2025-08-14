@@ -5,7 +5,7 @@ from work_grouper import (
 )
 
 
-def test_arc_project_name_application_work_grouper():
+def test_arc_youtube_project_name_application_work_grouper():
     arc_project_name_application_work_grouper = ArcProjectNameApplicationWorkGrouper()
     work = [
         [100, "Arc", "2025-01-01 00:00:00"],
@@ -13,11 +13,25 @@ def test_arc_project_name_application_work_grouper():
         [300, "(1) (2) Arc", "2025-01-01 00:00:00"],
         [400, "(1)"],
     ]
-    expected_regrouped_work = [[100, "Arc"], [200, "Arc"], [300, "(2) Arc"], [400, "(1)"]]
+    expected_regrouped_work = [[300, "Arc"], [300, "(2) Arc"], [400, "(1)"]]
     assert expected_regrouped_work == arc_project_name_application_work_grouper.regroup_work_by_tab(
         work
     )
 
+
+def test_arc_confluence_project_name_application_work_grouper():
+    arc_project_name_application_work_grouper = ArcProjectNameApplicationWorkGrouper()
+    work = [
+        [100, "Add Page - Milestone progress creation / update flows - TECH - Confluence", "2025-01-01 00:00:00"],
+        [200, "Edit - Milestone progress creation / update flows - TECH - Confluence", "2025-01-01 00:00:00"],
+        [300, "Milestone progress creation / update flows - TECH - Confluence", "2025-01-01 00:00:00"],
+        [400, "Using past successful fetches from BBPS to trigger inflight bill fetch and power CCBP serviceability - TECH - Confluence", "2025-01-01 00:00:00"],
+    ]
+    expected_regrouped_work = [
+        [600, "Milestone progress creation / update flows"],
+        [400, "Using past successful fetches from BBPS to trigger inflight bill fetch and power CCBP serviceability"],
+    ]
+    assert expected_regrouped_work == arc_project_name_application_work_grouper.regroup_work_by_tab(work)
 
 def test_idea_project_name_application_work_grouper():
     idea_project_name_application_work_grouper = IdeaProjectNameApplicationWorkGrouper()

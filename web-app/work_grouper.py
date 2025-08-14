@@ -108,7 +108,15 @@ class ArcProjectNameApplicationWorkGrouper(ApplicationWorkGrouper):
         return "tab"
 
     def regroup_work_by_tab(self, work):
-        return [[w[0], self.clean_tab_name(w[1])] for w in work]
+        work = [[w[0], self.clean_tab_name(w[1])] for w in work]
+        work_by_project_name = {}
+        for w in work:
+            work_done_in_secs = w[0]
+            project_name = w[1]
+            if project_name not in work_by_project_name:
+                work_by_project_name[project_name] = 0
+            work_by_project_name[project_name] += work_done_in_secs
+        return [[work_by_project_name[project_name], project_name] for project_name in work_by_project_name]
 
     def remove_youtube_notification_count(self, tab):
         cleaned_tab = re.sub(r"\(([0-9]+)\) ", "", tab, count=1)
@@ -116,11 +124,33 @@ class ArcProjectNameApplicationWorkGrouper(ApplicationWorkGrouper):
             return tab
         return cleaned_tab
 
+    def clean_confluence_tab_name(self, tab):
+        tab = tab.replace("- Confluence", "")
+        tab = tab.replace("Add Page - ", "")
+        tab = tab.replace("Edit - ", "")
+        splits = tab.split(" - ")
+        return " — ".join(splits[:-1])
+
     def clean_tab_name(self, tab):
+        if "Confluence" in tab:
+            return self.clean_confluence_tab_name(tab)
+
         return self.remove_youtube_notification_count(tab)
 
     def regroup_work_by_tab_and_date_hour(self, work):
-        return [[w[0], self.clean_tab_name(w[1]), w[2]] for w in work]
+        work = [[w[0], self.clean_tab_name(w[1]), w[2]] for w in work]
+        work_by_project_name_and_date_hour = {}
+        for w in work:
+            work_done_in_secs = w[0]
+            project_name = w[1]
+            date_hour = w[2]
+            if (project_name, date_hour) not in work_by_project_name_and_date_hour:
+                work_by_project_name_and_date_hour[(project_name, date_hour)] = 0
+            work_by_project_name_and_date_hour[(project_name, date_hour)] += work_done_in_secs
+        return [
+            [work_by_project_name_and_date_hour[(project_name, date_hour)], project_name, date_hour]
+            for project_name, date_hour in work_by_project_name_and_date_hour
+        ]
 
 
 class IdeaProjectNameApplicationWorkGrouper(ApplicationWorkGrouper):
