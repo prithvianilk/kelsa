@@ -115,7 +115,8 @@ class ByAppPage(PageState):
 
         app_work_grouper = get_work_grouper(app)
         work_done_since_start_time_by_group = app_work_grouper.regroup_work_by_tab(
-            work_done_since_start_time_by_tab
+            work_done_since_start_time_by_tab,
+            limit=20
         )
         work_done_since_start_time_by_group = list(
             filter(lambda w: w[0] > 60, work_done_since_start_time_by_group)
@@ -141,7 +142,8 @@ class ByAppPage(PageState):
         )
         work_done_since_start_time_by_group_and_date_hour = (
             app_work_grouper.regroup_work_by_tab_and_date_hour(
-                work_done_since_start_time_by_tab_and_date_hour
+                work_done_since_start_time_by_tab_and_date_hour, 
+                limit=20
             )
         )
         self.render_area_chart(

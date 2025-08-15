@@ -13,7 +13,7 @@ class ApplicationWorkGrouper:
     def clean_tab(self, tab):
         pass
 
-    def regroup_work_by_tab(self, work):
+    def regroup_work_by_tab(self, work, limit: int = 1000):
         work = [[w[0], self.clean_tab(w[1])] for w in work]
         work_by_group_key = {}
         for w in work:
@@ -23,12 +23,13 @@ class ApplicationWorkGrouper:
                 work_by_group_key[group_key] = 0
             work_by_group_key[group_key] += work_done_in_secs
         result = [[work_by_group_key[group_key], group_key] for group_key in work_by_group_key]
-        return self.sort_by_work_done_in_secs(result)
+        sorted_result = self.sort_by_work_done_in_secs(result)
+        return sorted_result[:limit]
 
     def sort_by_work_done_in_secs(self, work):
         return sorted(work, key=lambda x: x[0], reverse=True)
 
-    def regroup_work_by_tab_and_date_hour(self, work):
+    def regroup_work_by_tab_and_date_hour(self, work, limit: int = 1000):
         work = [[w[0], self.clean_tab(w[1]), w[2]] for w in work]
         work_by_group_key_and_date_hour = {}
         for w in work:
@@ -39,7 +40,8 @@ class ApplicationWorkGrouper:
                 work_by_group_key_and_date_hour[(group_key, date_hour)] = 0
             work_by_group_key_and_date_hour[(group_key, date_hour)] += work_done_in_secs
         result = [[work_by_group_key_and_date_hour[(group_key, date_hour)], group_key, date_hour] for group_key, date_hour in work_by_group_key_and_date_hour]
-        return self.sort_by_work_done_in_secs(result)
+        sorted_result = self.sort_by_work_done_in_secs(result)
+        return sorted_result[:limit]
 
 class NoOpApplicationWorkGrouper(ApplicationWorkGrouper):
     def group_key(self):

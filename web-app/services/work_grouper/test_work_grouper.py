@@ -109,3 +109,15 @@ def test_slack_tab_application_work_grouper_with_date_hour():
         [300, "Person 1 (DM)"]
     ]
     assert expected_regrouped_work == slack_tab_application_work_grouper.regroup_work_by_tab(work)
+
+
+def test_work_grouper_limit():
+    work_grouper = ArcProjectNameApplicationWorkGrouper()
+    work = [
+        [100, "1", "2025-01-01 00:00:00"],
+        [200, "2", "2025-01-01 00:00:00"],
+        [300, "3", "2025-01-01 00:00:00"],
+    ]
+    assert work_grouper.regroup_work_by_tab(work, limit=1) == [[300, "3"]]
+    assert work_grouper.regroup_work_by_tab(work, limit=2) == [[300, "3"], [200, "2"]]
+    assert work_grouper.regroup_work_by_tab(work) == [[300, "3"], [200, "2"], [100, "1"]]
