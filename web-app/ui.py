@@ -1,10 +1,12 @@
 import streamlit as st
-from time_util import is_less_than_an_hour, seconds_to_hours, seconds_to_minutes
+from time_util import is_less_than_an_hour, is_more_than_a_day, is_more_than_an_hour, seconds_to_days, seconds_to_hours, seconds_to_minutes, SECONDS_IN_A_DAY, SECONDS_IN_AN_HOUR
 
-def pretty_print_work_done(work_done_since_start_time):
-    if work_done_since_start_time > 3600:
-        return f"{work_done_since_start_time // 3600}h {work_done_since_start_time % 3600 // 60}m"
-    return f"{work_done_since_start_time // 60}m"
+def pretty_print_work_done(work_done_since_start_time_in_secs):
+    if is_more_than_a_day(work_done_since_start_time_in_secs):
+        return f"{seconds_to_days(work_done_since_start_time_in_secs)}d {seconds_to_hours(work_done_since_start_time_in_secs % SECONDS_IN_A_DAY)}h"
+    elif is_more_than_an_hour(work_done_since_start_time_in_secs):
+        return f"{seconds_to_hours(work_done_since_start_time_in_secs)}h {seconds_to_minutes(work_done_since_start_time_in_secs % SECONDS_IN_AN_HOUR)}m"
+    return f"{seconds_to_minutes(work_done_since_start_time_in_secs)}m"
 
 
 def to_app_metrics_page_link(base_url, app, epoch_time):

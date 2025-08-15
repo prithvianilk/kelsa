@@ -55,7 +55,7 @@ class YoutubeTabCleaner(TabCleaner):
             return tab
         return cleaned_tab
 
-tab_cleaners = [
+TAB_CLEANERS = [
     ConfluenceTabCleaner(),
     DatabricksTabCleaner(),
     JenkinsTabCleaner(),
@@ -64,7 +64,7 @@ tab_cleaners = [
 ]
 
 def get_tab_cleaner(tab) -> TabCleaner:
-    for cleaner in tab_cleaners:
+    for cleaner in TAB_CLEANERS:
         if cleaner.matches(tab):
             return cleaner
     return YoutubeTabCleaner()
