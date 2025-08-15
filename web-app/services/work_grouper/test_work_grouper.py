@@ -1,6 +1,7 @@
 from .work_grouper import (
     ArcProjectNameApplicationWorkGrouper,
     IdeaProjectNameApplicationWorkGrouper,
+    NoOpApplicationWorkGrouper,
     SlackTabApplicationWorkGrouper,
 )
 
@@ -121,3 +122,13 @@ def test_work_grouper_limit():
     assert work_grouper.regroup_work_by_tab(work, limit=1) == [[300, "3"]]
     assert work_grouper.regroup_work_by_tab(work, limit=2) == [[300, "3"], [200, "2"]]
     assert work_grouper.regroup_work_by_tab(work) == [[300, "3"], [200, "2"], [100, "1"]]
+
+def test_work_grouping_by_tab_and_date_hour():
+    work_grouper = NoOpApplicationWorkGrouper()
+    work = [
+        [100, "1", "2025-01-01 00:00:00"],
+        [150, "1", "2025-01-01 00:00:00"],
+        [200, "2", "2025-01-01 00:00:00"],
+        [300, "3", "2025-01-01 00:00:00"],
+    ]
+    assert work_grouper.regroup_work_by_tab_and_date_hour(work, limit=2) == [[250, "1", "2025-01-01 00:00:00"], [300, "3", "2025-01-01 00:00:00"]]

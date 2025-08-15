@@ -39,9 +39,11 @@ class ApplicationWorkGrouper:
             if (group_key, date_hour) not in work_by_group_key_and_date_hour:
                 work_by_group_key_and_date_hour[(group_key, date_hour)] = 0
             work_by_group_key_and_date_hour[(group_key, date_hour)] += work_done_in_secs
+        
         result = [[work_by_group_key_and_date_hour[(group_key, date_hour)], group_key, date_hour] for group_key, date_hour in work_by_group_key_and_date_hour]
-        sorted_result = self.sort_by_work_done_in_secs(result)
-        return sorted_result[:limit]
+        top_work = set(map(lambda x: x[1], self.regroup_work_by_tab(work, limit)))
+        work_with_only_top_regrouped_work = list(filter(lambda x: x[1] in top_work, result))
+        return work_with_only_top_regrouped_work
 
 class NoOpApplicationWorkGrouper(ApplicationWorkGrouper):
     def group_key(self):
