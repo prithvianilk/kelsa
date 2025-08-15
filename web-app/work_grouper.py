@@ -11,112 +11,69 @@ class ApplicationWorkGrouper:
         pass
 
     @abstractmethod
-    def regroup_work_by_tab(self, work):
+    def clean_tab(self, tab):
         pass
 
-    @abstractmethod
+    def regroup_work_by_tab(self, work):
+        work = [[w[0], self.clean_tab(w[1]), w[2]] for w in work]
+        work_by_group_key = {}
+        for w in work:
+            work_done_in_secs = w[0]
+            group_key = w[1]
+            if group_key not in work_by_group_key:
+                work_by_group_key[group_key] = 0
+            work_by_group_key[group_key] += work_done_in_secs
+        return [[work_by_group_key[group_key], group_key] for group_key in work_by_group_key]
+
     def regroup_work_by_tab_and_date_hour(self, work):
-        pass
+        work = [[w[0], self.clean_tab(w[1]), w[2]] for w in work]
+        work_by_group_key_and_date_hour = {}
+        for w in work:
+            work_done_in_secs = w[0]
+            group_key = w[1]
+            date_hour = w[2]
+            if (group_key, date_hour) not in work_by_group_key_and_date_hour:
+                work_by_group_key_and_date_hour[(group_key, date_hour)] = 0
+            work_by_group_key_and_date_hour[(group_key, date_hour)] += work_done_in_secs
+        return [[work_by_group_key_and_date_hour[(group_key, date_hour)], group_key, date_hour] for group_key, date_hour in work_by_group_key_and_date_hour]
 
 
 class NoOpApplicationWorkGrouper(ApplicationWorkGrouper):
     def group_key(self):
         return "tab"
 
-    def regroup_work_by_tab(self, work):
-        return work
-
-    def regroup_work_by_tab_and_date_hour(self, work):
-        return work
-
+    def clean_tab(self, tab):
+        return tab
 
 class CursorProjectNameApplicationWorkGrouper(ApplicationWorkGrouper):
     def group_key(self):
         return "project"
 
-    def regroup_work_by_tab(self, work):
-        work_by_project_name = {}
-        for w in work:
-            work_done_in_secs = w[0]
-            project_name = self.get_project_name(w[1])
-            if project_name not in work_by_project_name:
-                work_by_project_name[project_name] = 0
-            work_by_project_name[project_name] += work_done_in_secs
-        return [
-            [work_by_project_name[project_name], project_name]
-            for project_name in work_by_project_name
-        ]
-
-    def get_project_name(self, tab):
+    def clean_tab(self, tab):
         items = tab.split(" — ")
         if len(items) == 2:
             return items[1]
         return tab
 
-    def regroup_work_by_tab_and_date_hour(self, work):
-        work_by_project_name_and_date_hour = {}
-        for w in work:
-            work_done_in_secs = w[0]
-            project_name = self.get_project_name(w[1])
-            date_hour = w[2]
-            if (project_name, date_hour) not in work_by_project_name_and_date_hour:
-                work_by_project_name_and_date_hour[(project_name, date_hour)] = 0
-            work_by_project_name_and_date_hour[(project_name, date_hour)] += work_done_in_secs
-        return [
-            [work_by_project_name_and_date_hour[(project_name, date_hour)], project_name, date_hour]
-            for project_name, date_hour in work_by_project_name_and_date_hour
-        ]
-
-
 class SlackTabApplicationWorkGrouper(ApplicationWorkGrouper):
     def group_key(self):
         return "tab"
 
-    def get_channel_name(self, tab):
+    def clean_tab(self, tab):
         return tab.split(" - ")[0]
-
-    def regroup_work_by_tab(self, work):
-        work_by_channel_name = {}
-        for w in work:
-            work_done_in_secs = w[0]
-            channel_name = self.get_channel_name(w[1])
-            if channel_name not in work_by_channel_name:
-                work_by_channel_name[channel_name] = 0
-            work_by_channel_name[channel_name] += work_done_in_secs
-        return [
-            [work_by_channel_name[channel_name], channel_name]
-            for channel_name in work_by_channel_name
-        ]
-
-    def regroup_work_by_tab_and_date_hour(self, work):
-        work_by_channel_name_and_date_hour = {}
-        for w in work:
-            work_done_in_secs = w[0]
-            channel_name = self.get_channel_name(w[1])
-            date_hour = w[2]
-            if (channel_name, date_hour) not in work_by_channel_name_and_date_hour:
-                work_by_channel_name_and_date_hour[(channel_name, date_hour)] = 0
-            work_by_channel_name_and_date_hour[(channel_name, date_hour)] += work_done_in_secs
-        return [
-            [work_by_channel_name_and_date_hour[(channel_name, date_hour)], channel_name, date_hour]
-            for channel_name, date_hour in work_by_channel_name_and_date_hour
-        ]
-
 
 class ArcProjectNameApplicationWorkGrouper(ApplicationWorkGrouper):
     def group_key(self):
         return "tab"
 
-    def regroup_work_by_tab(self, work):
-        work = [[w[0], self.clean_tab_name(w[1])] for w in work]
-        work_by_project_name = {}
-        for w in work:
-            work_done_in_secs = w[0]
-            project_name = w[1]
-            if project_name not in work_by_project_name:
-                work_by_project_name[project_name] = 0
-            work_by_project_name[project_name] += work_done_in_secs
-        return [[work_by_project_name[project_name], project_name] for project_name in work_by_project_name]
+    def clean_tab(self, tab):
+        if "Confluence" in tab:
+            return self.clean_confluence_tab_name(tab)
+
+        if tab.endswith(" | Datadog"):
+            return "Datadog"
+
+        return self.remove_youtube_notification_count(tab)
 
     def remove_youtube_notification_count(self, tab):
         cleaned_tab = re.sub(r"\(([0-9]+)\) ", "", tab, count=1)
@@ -131,68 +88,15 @@ class ArcProjectNameApplicationWorkGrouper(ApplicationWorkGrouper):
         splits = tab.split(" - ")
         return " — ".join(splits[:-1])
 
-    def clean_tab_name(self, tab):
-        if "Confluence" in tab:
-            return self.clean_confluence_tab_name(tab)
-
-        if tab.endswith(" | Datadog"):
-            return "Datadog"
-
-        return self.remove_youtube_notification_count(tab)
-
-    def regroup_work_by_tab_and_date_hour(self, work):
-        work = [[w[0], self.clean_tab_name(w[1]), w[2]] for w in work]
-        work_by_project_name_and_date_hour = {}
-        for w in work:
-            work_done_in_secs = w[0]
-            project_name = w[1]
-            date_hour = w[2]
-            if (project_name, date_hour) not in work_by_project_name_and_date_hour:
-                work_by_project_name_and_date_hour[(project_name, date_hour)] = 0
-            work_by_project_name_and_date_hour[(project_name, date_hour)] += work_done_in_secs
-        return [
-            [work_by_project_name_and_date_hour[(project_name, date_hour)], project_name, date_hour]
-            for project_name, date_hour in work_by_project_name_and_date_hour
-        ]
-
-
 class IdeaProjectNameApplicationWorkGrouper(ApplicationWorkGrouper):
     def group_key(self):
         return "project"
 
-    def get_project_name(self, tab):
+    def clean_tab(self, tab):
         items = tab.split(" – ")
         if len(items) == 2:
             return items[0]
         return tab
-
-    def regroup_work_by_tab(self, work):
-        work_by_project_name = {}
-        for w in work:
-            work_done_in_secs = w[0]
-            project_name = self.get_project_name(w[1])
-            if project_name not in work_by_project_name:
-                work_by_project_name[project_name] = 0
-            work_by_project_name[project_name] += work_done_in_secs
-        return [
-            [work_by_project_name[project_name], project_name]
-            for project_name in work_by_project_name
-        ]
-
-    def regroup_work_by_tab_and_date_hour(self, work):
-        work_by_project_name_and_date_hour = {}
-        for w in work:
-            work_done_in_secs = w[0]
-            project_name = self.get_project_name(w[1])
-            date_hour = w[2]
-            if (project_name, date_hour) not in work_by_project_name_and_date_hour:
-                work_by_project_name_and_date_hour[(project_name, date_hour)] = 0
-            work_by_project_name_and_date_hour[(project_name, date_hour)] += work_done_in_secs
-        return [
-            [work_by_project_name_and_date_hour[(project_name, date_hour)], project_name, date_hour]
-            for project_name, date_hour in work_by_project_name_and_date_hour
-        ]
-
 
 def get_work_grouper(application_name):
     if application_name == "Cursor":

@@ -11,7 +11,7 @@ def test_arc_youtube_project_name_application_work_grouper():
         [100, "Arc", "2025-01-01 00:00:00"],
         [200, "(1) Arc", "2025-01-01 00:00:00"],
         [300, "(1) (2) Arc", "2025-01-01 00:00:00"],
-        [400, "(1)"],
+        [400, "(1)", "2025-01-01 00:00:00"],
     ]
     expected_regrouped_work = [[300, "Arc"], [300, "(2) Arc"], [400, "(1)"]]
     assert expected_regrouped_work == arc_project_name_application_work_grouper.regroup_work_by_tab(
