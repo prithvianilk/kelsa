@@ -1,6 +1,5 @@
 from abc import abstractmethod
-import re
-
+from tab_cleaner import get_tab_cleaner
 
 class ApplicationWorkGrouper:
     def __init__(self):
@@ -71,32 +70,7 @@ class ArcProjectNameApplicationWorkGrouper(ApplicationWorkGrouper):
         return "tab"
 
     def clean_tab(self, tab):
-        if "Confluence" in tab:
-            return self.clean_confluence_tab_name(tab)
-
-        if tab.endswith(" | Datadog"):
-            return "Datadog"
-
-        if tab.endswith("- Databricks"):
-            return "Databricks"
-
-        if tab.endswith(" - Jenkins"):
-            return "Jenkins"
-
-        return self.remove_youtube_notification_count(tab)
-
-    def remove_youtube_notification_count(self, tab):
-        cleaned_tab = re.sub(r"\(([0-9]+)\) ", "", tab, count=1)
-        if len(cleaned_tab.replace(" ", "")) == 0:
-            return tab
-        return cleaned_tab
-
-    def clean_confluence_tab_name(self, tab):
-        tab = tab.replace("- Confluence", "")
-        tab = tab.replace("Add Page - ", "")
-        tab = tab.replace("Edit - ", "")
-        splits = tab.split(" - ")
-        return " — ".join(splits[:-1])
+        return get_tab_cleaner(tab).clean_tab(tab)
 
 class IdeaProjectNameApplicationWorkGrouper(ApplicationWorkGrouper):
     def group_key(self):
@@ -108,7 +82,7 @@ class IdeaProjectNameApplicationWorkGrouper(ApplicationWorkGrouper):
             return items[0]
         return tab
 
-def get_work_grouper(application_name):
+def get_work_grouper(application_name) -> ApplicationWorkGrouper:
     if application_name == "Cursor":
         return CursorProjectNameApplicationWorkGrouper()
     if application_name == "Slack":

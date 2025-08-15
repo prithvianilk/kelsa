@@ -7,12 +7,12 @@ import pandas as pd
 from pinot_conn import conn
 import streamlit as st
 from ui import pretty_print_work_done, render_toggle_active_work, render_total_time_spent
-from work_grouper import get_work_grouper
 from work_repo import PinotWorkRepo, WorkRepo
 from time_util import seconds_to_minutes
 from common.auth import decode_auth_header
 from services.open_ai import get_open_ai_client
 from services.work_summarisation_service import ArcWorkSummarisationService, OpenAIGpt4oMiniLlm, SummarisationService
+from services.work_grouper.work_grouper import get_work_grouper
 
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
