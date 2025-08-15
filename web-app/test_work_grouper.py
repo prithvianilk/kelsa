@@ -13,11 +13,8 @@ def test_arc_youtube_project_name_application_work_grouper():
         [300, "(1) (2) Arc", "2025-01-01 00:00:00"],
         [400, "(1)", "2025-01-01 00:00:00"],
     ]
-    expected_regrouped_work = [[300, "Arc"], [300, "(2) Arc"], [400, "(1)"]]
-    assert expected_regrouped_work == arc_project_name_application_work_grouper.regroup_work_by_tab(
-        work
-    )
-
+    expected_regrouped_work = [[400, "(1)"], [300, "Arc"], [300, "(2) Arc"]]
+    assert expected_regrouped_work == arc_project_name_application_work_grouper.regroup_work_by_tab(work)
 
 def test_arc_confluence_project_name_application_work_grouper():
     arc_project_name_application_work_grouper = ArcProjectNameApplicationWorkGrouper()
@@ -42,6 +39,24 @@ def test_arc_datadog_date_hour_application_work_grouper():
         [100, "APM Home (env:dtplcat1) | Datadog", "2025-01-01 00:00:00"],
     ]
     expected_regrouped_work = [[400, "Datadog"]]
+    assert expected_regrouped_work == arc_date_hour_application_work_grouper.regroup_work_by_tab(work)
+
+def test_arc_databricks_date_hour_application_work_grouper():
+    arc_date_hour_application_work_grouper = ArcProjectNameApplicationWorkGrouper()
+    work = [
+        [100, "New Query 2025-08-06 8:56pm - Databricks", "2025-01-01 00:00:00"],
+        [100, "New Query 2025-07-21 5:54pm - Databricks", "2025-01-01 00:00:00"]
+    ]
+    expected_regrouped_work = [[200, "Databricks"]]
+    assert expected_regrouped_work == arc_date_hour_application_work_grouper.regroup_work_by_tab(work)
+
+def test_arc_jenkins_date_hour_application_work_grouper():
+    arc_date_hour_application_work_grouper = ArcProjectNameApplicationWorkGrouper()
+    work = [
+        [100, "service-1 - Jenkins", "2025-01-01 00:00:00"],
+        [100, "service-2 - Jenkins", "2025-01-01 00:00:00"]
+    ]
+    expected_regrouped_work = [[200, "Jenkins"]]
     assert expected_regrouped_work == arc_date_hour_application_work_grouper.regroup_work_by_tab(work)
 
 def test_idea_project_name_application_work_grouper():
@@ -88,9 +103,9 @@ def test_slack_tab_application_work_grouper_with_date_hour():
         [600, "kelsa-alerts (Channel) - Dreamplug - Slack", "2025-01-01 00:00:00"],
     ]
     expected_regrouped_work = [
-        [300, "Person 1 (DM)"],
-        [500, "Person1, Person 2, Person 3, Person 4 (DM)"],
         [900, "Activity"],
         [600, "kelsa-alerts (Channel)"],
+        [500, "Person1, Person 2, Person 3, Person 4 (DM)"],
+        [300, "Person 1 (DM)"]
     ]
     assert expected_regrouped_work == slack_tab_application_work_grouper.regroup_work_by_tab(work)

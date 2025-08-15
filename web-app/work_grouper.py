@@ -23,7 +23,11 @@ class ApplicationWorkGrouper:
             if group_key not in work_by_group_key:
                 work_by_group_key[group_key] = 0
             work_by_group_key[group_key] += work_done_in_secs
-        return [[work_by_group_key[group_key], group_key] for group_key in work_by_group_key]
+        result = [[work_by_group_key[group_key], group_key] for group_key in work_by_group_key]
+        return self.sort_by_work_done_in_secs(result)
+
+    def sort_by_work_done_in_secs(self, work):
+        return sorted(work, key=lambda x: x[0], reverse=True)
 
     def regroup_work_by_tab_and_date_hour(self, work):
         work = [[w[0], self.clean_tab(w[1]), w[2]] for w in work]
@@ -35,8 +39,8 @@ class ApplicationWorkGrouper:
             if (group_key, date_hour) not in work_by_group_key_and_date_hour:
                 work_by_group_key_and_date_hour[(group_key, date_hour)] = 0
             work_by_group_key_and_date_hour[(group_key, date_hour)] += work_done_in_secs
-        return [[work_by_group_key_and_date_hour[(group_key, date_hour)], group_key, date_hour] for group_key, date_hour in work_by_group_key_and_date_hour]
-
+        result = [[work_by_group_key_and_date_hour[(group_key, date_hour)], group_key, date_hour] for group_key, date_hour in work_by_group_key_and_date_hour]
+        return self.sort_by_work_done_in_secs(result)
 
 class NoOpApplicationWorkGrouper(ApplicationWorkGrouper):
     def group_key(self):
@@ -72,6 +76,12 @@ class ArcProjectNameApplicationWorkGrouper(ApplicationWorkGrouper):
 
         if tab.endswith(" | Datadog"):
             return "Datadog"
+
+        if tab.endswith("- Databricks"):
+            return "Databricks"
+
+        if tab.endswith(" - Jenkins"):
+            return "Jenkins"
 
         return self.remove_youtube_notification_count(tab)
 
