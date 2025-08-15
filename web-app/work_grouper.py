@@ -15,7 +15,7 @@ class ApplicationWorkGrouper:
         pass
 
     def regroup_work_by_tab(self, work):
-        work = [[w[0], self.clean_tab(w[1]), w[2]] for w in work]
+        work = [[w[0], self.clean_tab(w[1])] for w in work]
         work_by_group_key = {}
         for w in work:
             work_done_in_secs = w[0]
