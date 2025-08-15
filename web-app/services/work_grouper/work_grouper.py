@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from tab_cleaner import get_tab_cleaner
+from .tab_cleaner import get_tab_cleaner
 
 class ApplicationWorkGrouper:
     def __init__(self):

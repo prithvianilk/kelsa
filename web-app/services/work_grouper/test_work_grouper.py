@@ -1,4 +1,4 @@
-from work_grouper import (
+from .work_grouper import (
     ArcProjectNameApplicationWorkGrouper,
     IdeaProjectNameApplicationWorkGrouper,
     SlackTabApplicationWorkGrouper,
