@@ -135,6 +135,9 @@ class ArcProjectNameApplicationWorkGrouper(ApplicationWorkGrouper):
         if "Confluence" in tab:
             return self.clean_confluence_tab_name(tab)
 
+        if tab.endswith(" | Datadog"):
+            return "Datadog"
+
         return self.remove_youtube_notification_count(tab)
 
     def regroup_work_by_tab_and_date_hour(self, work):

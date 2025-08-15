@@ -22,16 +22,27 @@ def test_arc_youtube_project_name_application_work_grouper():
 def test_arc_confluence_project_name_application_work_grouper():
     arc_project_name_application_work_grouper = ArcProjectNameApplicationWorkGrouper()
     work = [
-        [100, "Add Page - Milestone progress creation / update flows - TECH - Confluence", "2025-01-01 00:00:00"],
-        [200, "Edit - Milestone progress creation / update flows - TECH - Confluence", "2025-01-01 00:00:00"],
-        [300, "Milestone progress creation / update flows - TECH - Confluence", "2025-01-01 00:00:00"],
-        [400, "Using past successful fetches from BBPS to trigger inflight bill fetch and power CCBP serviceability - TECH - Confluence", "2025-01-01 00:00:00"],
+        [100, "Add Page - page - TECH - Confluence", "2025-01-01 00:00:00"],
+        [200, "Edit - page - TECH - Confluence", "2025-01-01 00:00:00"],
+        [300, "page - TECH - Confluence", "2025-01-01 00:00:00"],
+        [400, "page-2 - TECH - Confluence", "2025-01-01 00:00:00"],
     ]
     expected_regrouped_work = [
-        [600, "Milestone progress creation / update flows"],
-        [400, "Using past successful fetches from BBPS to trigger inflight bill fetch and power CCBP serviceability"],
+        [600, "page"],
+        [400, "page-2"],
     ]
     assert expected_regrouped_work == arc_project_name_application_work_grouper.regroup_work_by_tab(work)
+
+def test_arc_datadog_date_hour_application_work_grouper():
+    arc_date_hour_application_work_grouper = ArcProjectNameApplicationWorkGrouper()
+    work = [
+        [100, "Editing Resource post_/api has a high error rate on env:prod | Datadog", "2025-01-01 00:00:00"],
+        [100, "service-stage (env:stage) | Datadog", "2025-01-01 00:00:00"],
+        [100, "service-prod service.process (env:prod) | Datadog", "2025-01-01 00:00:00"],
+        [100, "APM Home (env:dtplcat1) | Datadog", "2025-01-01 00:00:00"],
+    ]
+    expected_regrouped_work = [[400, "Datadog"]]
+    assert expected_regrouped_work == arc_date_hour_application_work_grouper.regroup_work_by_tab(work)
 
 def test_idea_project_name_application_work_grouper():
     idea_project_name_application_work_grouper = IdeaProjectNameApplicationWorkGrouper()
