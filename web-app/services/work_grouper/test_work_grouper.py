@@ -116,8 +116,11 @@ def test_jio_hotstar_tab_application_work_grouper():
     work = [
         [100, "Watch Succession S2 Episode 9 on JioHotstar", "2025-01-01 00:00:00"],
         [100, "Watch Succession S1 Episode 10 on JioHotstar", "2025-01-01 00:00:00"],
+        [200, "Watch Silicon Valley S2 Episode 9 on JioHotstar", "2025-01-01 00:00:00"],
+        [300, "Watch Silicon Valley S2 Episode 10 on JioHotstar", "2025-01-01 00:00:00"],
+        [100, "Succession - JioHotstar", "2025-01-01 00:00:00"],
     ]
-    expected_regrouped_work = [[200, "Succession - JioHotstar"]]
+    expected_regrouped_work = [[500, "Silicon Valley - JioHotstar"], [300, "Succession - JioHotstar"]]
     assert expected_regrouped_work == jio_hotstar_tab_application_work_grouper.regroup_work_by_tab(work)
 
 
