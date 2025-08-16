@@ -55,11 +55,24 @@ class YoutubeTabCleaner(TabCleaner):
             return tab
         return cleaned_tab
 
+class JioHotstarTabCleaner(TabCleaner):
+    def matches(self, tab):
+        return "Watch " in tab and "on JioHotstar" in tab
+    
+    def clean_tab(self, tab):
+        tab = tab.replace("Watch ", "")
+        tab = tab.replace(" on JioHotstar", "")
+        tab = tab.replace("Episode ", "")
+        items = tab.split(" ")
+        items_excluding_season_and_episode = items[:-2]
+        return " ".join(items_excluding_season_and_episode) + " - JioHotstar"
+
 TAB_CLEANERS = [
     ConfluenceTabCleaner(),
     DatabricksTabCleaner(),
     JenkinsTabCleaner(),
     DatadogTabCleaner(),
+    JioHotstarTabCleaner(),
     YoutubeTabCleaner(),
 ]
 

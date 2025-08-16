@@ -2,7 +2,7 @@ from .work_grouper import (
     ArcProjectNameApplicationWorkGrouper,
     IdeaProjectNameApplicationWorkGrouper,
     NoOpApplicationWorkGrouper,
-    SlackTabApplicationWorkGrouper,
+    SlackTabApplicationWorkGrouper
 )
 
 
@@ -110,6 +110,15 @@ def test_slack_tab_application_work_grouper_with_date_hour():
         [300, "Person 1 (DM)"]
     ]
     assert expected_regrouped_work == slack_tab_application_work_grouper.regroup_work_by_tab(work)
+
+def test_jio_hotstar_tab_application_work_grouper():
+    jio_hotstar_tab_application_work_grouper = ArcProjectNameApplicationWorkGrouper()
+    work = [
+        [100, "Watch Succession S2 Episode 9 on JioHotstar", "2025-01-01 00:00:00"],
+        [100, "Watch Succession S1 Episode 10 on JioHotstar", "2025-01-01 00:00:00"],
+    ]
+    expected_regrouped_work = [[200, "Succession - JioHotstar"]]
+    assert expected_regrouped_work == jio_hotstar_tab_application_work_grouper.regroup_work_by_tab(work)
 
 
 def test_work_grouper_limit():
