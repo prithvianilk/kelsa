@@ -22,7 +22,7 @@ class ConfluenceTabCleaner(TabCleaner):
         tab = tab.replace("Add Page - ", "")
         tab = tab.replace("Edit - ", "")
         splits = tab.split(" - ")
-        return " — ".join(splits[:-1])
+        return " — ".join(splits[:-1]) + " - Confluence"
 
 class DatabricksTabCleaner(TabCleaner):
     def matches(self, tab):

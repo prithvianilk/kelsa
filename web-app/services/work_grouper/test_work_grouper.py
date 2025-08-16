@@ -26,8 +26,8 @@ def test_arc_confluence_project_name_application_work_grouper():
         [400, "page-2 - TECH - Confluence", "2025-01-01 00:00:00"],
     ]
     expected_regrouped_work = [
-        [600, "page"],
-        [400, "page-2"],
+        [600, "page - Confluence"],
+        [400, "page-2 - Confluence"],
     ]
     assert expected_regrouped_work == arc_project_name_application_work_grouper.regroup_work_by_tab(work)
 
