@@ -118,10 +118,11 @@ class LandingPage(PageState):
         self.logger.debug(f"Datetime (millis): {int(datetime.datetime.combine(d, t, tzinfo=None).timestamp() * 1000)}")
         self.logger.debug(f"Datetime: {datetime.datetime.combine(d, t, tzinfo=pytz.timezone('UTC'))}")
         self.logger.debug(f"Datetime (millis): {int(datetime.datetime.combine(d, t, tzinfo=pytz.timezone('UTC')).timestamp() * 1000)}")
-        self.logger.debug(f"Datetime: {datetime.datetime.combine(d, t, tzinfo=pytz.timezone('Asia/Kolkata'))}")
-        self.logger.debug(f"Datetime (millis): {int(datetime.datetime.combine(d, t, tzinfo=pytz.timezone('Asia/Kolkata')).timestamp() * 1000)}")
+        ist_datetime = pytz.timezone('Asia/Kolkata').localize(datetime.datetime.combine(d, t, tzinfo=None))
+        self.logger.debug(f"Datetime: {ist_datetime}")
+        self.logger.debug(f"Datetime (millis): {int(ist_datetime.timestamp() * 1000)}")
 
-        epoch_time = int(datetime.datetime.combine(d, t, tzinfo=None).timestamp() * 1000)
+        epoch_time = int(ist_datetime.timestamp() * 1000)
         self.logger.debug(f"Epoch time: {epoch_time}")
 
         render_only_active_work = render_toggle_active_work()
