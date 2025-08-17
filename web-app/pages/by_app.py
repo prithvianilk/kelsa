@@ -8,7 +8,7 @@ from pinot_conn import conn
 import streamlit as st
 from ui import pretty_print_work_done, render_toggle_active_work, render_total_time_spent
 from work_repo import PinotWorkRepo, WorkRepo
-from time_util import seconds_to_minutes
+from time_util import epoch_time_from_utc_to_ist, seconds_to_minutes
 from common.auth import decode_auth_header
 from services.open_ai import get_open_ai_client
 from services.work_summarisation_service import ArcWorkSummarisationService, OpenAIGpt4oMiniLlm, SummarisationService
@@ -103,7 +103,7 @@ class ByAppPage(PageState):
             "work done in "
             + app
             + " since "
-            + pd.to_datetime(epoch_time // 1000, unit="s").strftime("%Y-%m-%d %H:%M:%S")
+            + pd.to_datetime(epoch_time_from_utc_to_ist(epoch_time), unit="ms", utc=False).strftime("%Y-%m-%d %I:%M%p")
         )
         render_only_active_work = render_toggle_active_work()
 
