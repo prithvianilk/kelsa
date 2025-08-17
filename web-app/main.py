@@ -13,12 +13,13 @@ from time_util import seconds_to_minutes
 from common.auth import decode_auth_header
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from common.logger import LogLevel, get_customised_logger
+from common.logger import LogLevel, get_customised_logger, Logger
 
 logger = get_customised_logger(LogLevel.INFO)
 
 class LandingPage(PageState):
-    def __init__(self, work_repo: WorkRepo):
+    def __init__(self, logger: Logger, work_repo: WorkRepo):
+        self.logger = logger
         self.work_repo = work_repo
 
     def render_pie_chart(self, work_done_since_start_time_by_app):
@@ -107,6 +108,7 @@ class LandingPage(PageState):
         d = st.date_input("Since", datetime.date.today())
         t = st.time_input("At", datetime.time(0, 0))
         epoch_time = int(datetime.datetime.combine(d, t).timestamp() * 1000)
+        self.logger.info(f"Epoch time: {epoch_time}")
 
         render_only_active_work = render_toggle_active_work()
 
@@ -143,5 +145,5 @@ class LandingPage(PageState):
 
 username = decode_auth_header(st.context.headers.get("authorization"))[0]
 work_repo = PinotWorkRepo(conn, logger, username)
-state = LandingPage(work_repo)
+state = LandingPage(logger, work_repo)
 state.render()
