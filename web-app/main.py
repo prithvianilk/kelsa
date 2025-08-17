@@ -111,8 +111,16 @@ class LandingPage(PageState):
         t = st.time_input("At", datetime.time(0, 0, tzinfo=pytz.timezone("Asia/Kolkata")))
         self.logger.debug(f"Date: {d}")
         self.logger.debug(f"Time: {t}")
+
         self.logger.debug(f"Datetime: {datetime.datetime.combine(d, t)}")
+        self.logger.debug(f"Datetime (millis): {int(datetime.datetime.combine(d, t).timestamp() * 1000)}")
         self.logger.debug(f"Datetime: {datetime.datetime.combine(d, t, tzinfo=None)}")
+        self.logger.debug(f"Datetime (millis): {int(datetime.datetime.combine(d, t, tzinfo=None).timestamp() * 1000)}")
+        self.logger.debug(f"Datetime: {datetime.datetime.combine(d, t, tzinfo=pytz.timezone('UTC'))}")
+        self.logger.debug(f"Datetime (millis): {int(datetime.datetime.combine(d, t, tzinfo=pytz.timezone('UTC')).timestamp() * 1000)}")
+        self.logger.debug(f"Datetime: {datetime.datetime.combine(d, t, tzinfo=pytz.timezone('Asia/Kolkata'))}")
+        self.logger.debug(f"Datetime (millis): {int(datetime.datetime.combine(d, t, tzinfo=pytz.timezone('Asia/Kolkata')).timestamp() * 1000)}")
+
         epoch_time = int(datetime.datetime.combine(d, t, tzinfo=None).timestamp() * 1000)
         self.logger.debug(f"Epoch time: {epoch_time}")
 
