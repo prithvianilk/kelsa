@@ -11,11 +11,13 @@ from ui import pretty_print_work_done, render_toggle_active_work, render_total_t
 from work_repo import PinotWorkRepo, WorkRepo
 from time_util import seconds_to_minutes
 from common.auth import decode_auth_header
+import pytz
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from common.logger import LogLevel, get_customised_logger, Logger
 
-logger = get_customised_logger(LogLevel.INFO)
+debug_logger = get_customised_logger(LogLevel.DEBUG)
+info_logger = get_customised_logger(LogLevel.INFO)
 
 class LandingPage(PageState):
     def __init__(self, logger: Logger, work_repo: WorkRepo):
@@ -105,10 +107,14 @@ class LandingPage(PageState):
 
     def render(self):
         st.title("Your work at a glance")
-        d = st.date_input("Since", datetime.date.today())
-        t = st.time_input("At", datetime.time(0, 0))
-        epoch_time = int(datetime.datetime.combine(d, t).timestamp() * 1000)
-        self.logger.info(f"Epoch time: {epoch_time}")
+        d = st.date_input("Since", datetime.datetime.now(pytz.timezone("Asia/Kolkata")).date())
+        t = st.time_input("At", datetime.time(0, 0, tzinfo=pytz.timezone("Asia/Kolkata")))
+        self.logger.debug(f"Date: {d}")
+        self.logger.debug(f"Time: {t}")
+        self.logger.debug(f"Datetime: {datetime.datetime.combine(d, t)}")
+        self.logger.debug(f"Datetime: {datetime.datetime.combine(d, t, tzinfo=None)}")
+        epoch_time = int(datetime.datetime.combine(d, t, tzinfo=None).timestamp() * 1000)
+        self.logger.debug(f"Epoch time: {epoch_time}")
 
         render_only_active_work = render_toggle_active_work()
 
@@ -144,6 +150,6 @@ class LandingPage(PageState):
         self.render_area_chart(work_done_since_start_time_by_app_and_date_hour)
 
 username = decode_auth_header(st.context.headers.get("authorization"))[0]
-work_repo = PinotWorkRepo(conn, logger, username)
-state = LandingPage(logger, work_repo)
+work_repo = PinotWorkRepo(conn, info_logger, username)
+state = LandingPage(debug_logger, work_repo)
 state.render()
