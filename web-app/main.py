@@ -109,20 +109,11 @@ class LandingPage(PageState):
         st.title("Your work at a glance")
         d = st.date_input("Since", datetime.datetime.now(pytz.timezone("Asia/Kolkata")).date())
         t = st.time_input("At", datetime.time(0, 0, tzinfo=pytz.timezone("Asia/Kolkata")))
+        ist_datetime = pytz.timezone('Asia/Kolkata').localize(datetime.datetime.combine(d, t, tzinfo=None))
+        epoch_time = int(ist_datetime.timestamp() * 1000)
+
         self.logger.debug(f"Date: {d}")
         self.logger.debug(f"Time: {t}")
-
-        self.logger.debug(f"Datetime: {datetime.datetime.combine(d, t)}")
-        self.logger.debug(f"Datetime (millis): {int(datetime.datetime.combine(d, t).timestamp() * 1000)}")
-        self.logger.debug(f"Datetime: {datetime.datetime.combine(d, t, tzinfo=None)}")
-        self.logger.debug(f"Datetime (millis): {int(datetime.datetime.combine(d, t, tzinfo=None).timestamp() * 1000)}")
-        self.logger.debug(f"Datetime: {datetime.datetime.combine(d, t, tzinfo=pytz.timezone('UTC'))}")
-        self.logger.debug(f"Datetime (millis): {int(datetime.datetime.combine(d, t, tzinfo=pytz.timezone('UTC')).timestamp() * 1000)}")
-        ist_datetime = pytz.timezone('Asia/Kolkata').localize(datetime.datetime.combine(d, t, tzinfo=None))
-        self.logger.debug(f"Datetime: {ist_datetime}")
-        self.logger.debug(f"Datetime (millis): {int(ist_datetime.timestamp() * 1000)}")
-
-        epoch_time = int(ist_datetime.timestamp() * 1000)
         self.logger.debug(f"Epoch time: {epoch_time}")
 
         render_only_active_work = render_toggle_active_work()
@@ -160,5 +151,5 @@ class LandingPage(PageState):
 
 username = decode_auth_header(st.context.headers.get("authorization"))[0]
 work_repo = PinotWorkRepo(conn, info_logger, username)
-state = LandingPage(debug_logger, work_repo)
+state = LandingPage(info_logger, work_repo)
 state.render()
