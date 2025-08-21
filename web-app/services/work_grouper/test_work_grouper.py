@@ -150,6 +150,15 @@ def test_jio_hotstar_tab_application_work_grouper():
     expected_regrouped_work = [[500, "Silicon Valley - JioHotstar"], [300, "Succession - JioHotstar"]]
     assert expected_regrouped_work == jio_hotstar_tab_application_work_grouper.regroup_work_by_tab(work)
 
+def test_google_meet_tab_application_work_grouper():
+    google_meet_tab_application_work_grouper = get_work_grouper("Arc")
+    work = [
+        [100, "umb-oqqa-xqf", "2025-01-01 00:00:00"],
+        [200, "lol-xwef-geg", "2025-01-01 00:00:00"],
+    ]
+    expected_regrouped_work = [[300, "Google Meet"]]
+    assert expected_regrouped_work == google_meet_tab_application_work_grouper.regroup_work_by_tab(work)
+
 
 def test_work_grouper_limit():
     work_grouper = get_work_grouper("Arc")
