@@ -1,13 +1,11 @@
 from .work_grouper import (
-    ArcProjectNameApplicationWorkGrouper,
-    IdeaProjectNameApplicationWorkGrouper,
     NoOpApplicationWorkGrouper,
-    SlackTabApplicationWorkGrouper
+    get_work_grouper
 )
 
 
 def test_arc_youtube_project_name_application_work_grouper():
-    arc_project_name_application_work_grouper = ArcProjectNameApplicationWorkGrouper()
+    arc_project_name_application_work_grouper = get_work_grouper("Arc")
     work = [
         [100, "Arc", "2025-01-01 00:00:00"],
         [200, "(1) Arc", "2025-01-01 00:00:00"],
@@ -18,7 +16,7 @@ def test_arc_youtube_project_name_application_work_grouper():
     assert expected_regrouped_work == arc_project_name_application_work_grouper.regroup_work_by_tab(work)
 
 def test_arc_confluence_project_name_application_work_grouper():
-    arc_project_name_application_work_grouper = ArcProjectNameApplicationWorkGrouper()
+    arc_project_name_application_work_grouper = get_work_grouper("Arc")
     work = [
         [100, "Add Page - page - TECH - Confluence", "2025-01-01 00:00:00"],
         [200, "Edit - page - TECH - Confluence", "2025-01-01 00:00:00"],
@@ -32,7 +30,7 @@ def test_arc_confluence_project_name_application_work_grouper():
     assert expected_regrouped_work == arc_project_name_application_work_grouper.regroup_work_by_tab(work)
 
 def test_arc_datadog_date_hour_application_work_grouper():
-    arc_date_hour_application_work_grouper = ArcProjectNameApplicationWorkGrouper()
+    arc_date_hour_application_work_grouper = get_work_grouper("Arc")
     work = [
         [100, "Editing Resource post_/api has a high error rate on env:prod | Datadog", "2025-01-01 00:00:00"],
         [100, "service-stage (env:stage) | Datadog", "2025-01-01 00:00:00"],
@@ -43,7 +41,7 @@ def test_arc_datadog_date_hour_application_work_grouper():
     assert expected_regrouped_work == arc_date_hour_application_work_grouper.regroup_work_by_tab(work)
 
 def test_arc_databricks_date_hour_application_work_grouper():
-    arc_date_hour_application_work_grouper = ArcProjectNameApplicationWorkGrouper()
+    arc_date_hour_application_work_grouper = get_work_grouper("Arc")
     work = [
         [100, "New Query 2025-08-06 8:56pm - Databricks", "2025-01-01 00:00:00"],
         [100, "New Query 2025-07-21 5:54pm - Databricks", "2025-01-01 00:00:00"]
@@ -52,7 +50,7 @@ def test_arc_databricks_date_hour_application_work_grouper():
     assert expected_regrouped_work == arc_date_hour_application_work_grouper.regroup_work_by_tab(work)
 
 def test_arc_jenkins_date_hour_application_work_grouper():
-    arc_date_hour_application_work_grouper = ArcProjectNameApplicationWorkGrouper()
+    arc_date_hour_application_work_grouper = get_work_grouper("Arc")
     work = [
         [100, "service-1 - Jenkins", "2025-01-01 00:00:00"],
         [100, "service-2 - Jenkins", "2025-01-01 00:00:00"]
@@ -61,31 +59,60 @@ def test_arc_jenkins_date_hour_application_work_grouper():
     assert expected_regrouped_work == arc_date_hour_application_work_grouper.regroup_work_by_tab(work)
 
 def test_idea_project_name_application_work_grouper():
-    idea_project_name_application_work_grouper = IdeaProjectNameApplicationWorkGrouper()
+    idea_project_name_application_work_grouper = get_work_grouper("idea")
 
     work = [
         [
             100,
-            "mistletoe – MerchantLogoService.java [mistletoe.application.main]",
+            "project-repo – SomeClass.java [project.application.main]",
             "2025-01-01 00:00:00",
         ],
         [
             200,
-            "mistletoe – MerchantLogoService.java [mistletoe.application.main]",
+            "project-repo – SomeClass.java [project.application.main]",
+            "2025-01-01 00:00:00",
+        ],
+        [
+            300,
+            "project-repo – Changes: dto.go",
             "2025-01-01 00:00:00",
         ],
     ]
     expected_regrouped_work = [
-        [300, "mistletoe"],
+        [600, "project-repo"],
     ]
     assert (
         expected_regrouped_work
         == idea_project_name_application_work_grouper.regroup_work_by_tab(work)
     )
 
+def test_goland_project_name_application_work_grouper():
+    goland_project_name_application_work_grouper = get_work_grouper("goland")
+
+    work = [
+        [
+            100,
+            "project-repo – provider.go",
+            "2025-01-01 00:00:00",
+        ],
+        [
+            200,
+            "project-repo – go.mod",
+            "2025-01-01 00:00:00",
+        ],
+    ]
+    expected_regrouped_work = [
+        [300, "project-repo"],
+    ]
+    assert (
+        expected_regrouped_work
+        == goland_project_name_application_work_grouper.regroup_work_by_tab(work)
+    )
+
+
 
 def test_slack_tab_application_work_grouper_with_date_hour():
-    slack_tab_application_work_grouper = SlackTabApplicationWorkGrouper()
+    slack_tab_application_work_grouper = get_work_grouper("Slack")
     work = [
         [100, "Person 1 (DM) - Company - 16 new items - Slack", "2025-01-01 00:00:00"],
         [200, "Person 1 (DM) - Company - 16 new items - Slack", "2025-01-01 00:00:00"],
@@ -112,7 +139,7 @@ def test_slack_tab_application_work_grouper_with_date_hour():
     assert expected_regrouped_work == slack_tab_application_work_grouper.regroup_work_by_tab(work)
 
 def test_jio_hotstar_tab_application_work_grouper():
-    jio_hotstar_tab_application_work_grouper = ArcProjectNameApplicationWorkGrouper()
+    jio_hotstar_tab_application_work_grouper = get_work_grouper("Arc")
     work = [
         [100, "Watch Succession S2 Episode 9 on JioHotstar", "2025-01-01 00:00:00"],
         [100, "Watch Succession S1 Episode 10 on JioHotstar", "2025-01-01 00:00:00"],
@@ -125,7 +152,7 @@ def test_jio_hotstar_tab_application_work_grouper():
 
 
 def test_work_grouper_limit():
-    work_grouper = ArcProjectNameApplicationWorkGrouper()
+    work_grouper = get_work_grouper("Arc")
     work = [
         [100, "1", "2025-01-01 00:00:00"],
         [200, "2", "2025-01-01 00:00:00"],

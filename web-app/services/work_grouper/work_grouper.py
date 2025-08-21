@@ -93,6 +93,6 @@ def get_work_grouper(application_name) -> ApplicationWorkGrouper:
         return SlackTabApplicationWorkGrouper()
     if application_name == "Arc":
         return ArcProjectNameApplicationWorkGrouper()
-    if application_name == "idea":
+    if application_name == "idea" or application_name == "goland":
         return IdeaProjectNameApplicationWorkGrouper()
     return NoOpApplicationWorkGrouper()
