@@ -84,9 +84,17 @@ class GoogleMeetTabCleaner(TabCleaner):
     def clean_tab(self, tab: str) -> str:
         return "Google Meet"
 
+class GrafanaTabCleaner(TabCleaner):
+    def matches(self, tab: str) -> bool:
+        return tab.endswith("- Grafana")
+
+    def clean_tab(self, tab: str) -> str:
+        return "Grafana"
+
 TAB_CLEANERS: list[TabCleaner] = [
     ConfluenceTabCleaner(),
     GoogleMeetTabCleaner(),
+    GrafanaTabCleaner(),
     DatabricksTabCleaner(),
     JenkinsTabCleaner(),
     DatadogTabCleaner(),

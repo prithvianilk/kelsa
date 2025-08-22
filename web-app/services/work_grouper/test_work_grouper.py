@@ -159,6 +159,15 @@ def test_google_meet_tab_application_work_grouper():
     expected_regrouped_work = [[300, "Google Meet"]]
     assert expected_regrouped_work == google_meet_tab_application_work_grouper.regroup_work_by_tab(work)
 
+def test_grafana_tab_application_work_grouper():
+    grafana_tab_application_work_grouper = get_work_grouper("Arc")
+    work = [
+        [100, "lol dash - lol - Dashboards - Grafana", "2025-01-01 00:00:00"],
+        [200, "Explore - loki - Grafana", "2025-01-01 00:00:00"],
+    ]
+    expected_regrouped_work = [[300, "Grafana"]]
+    assert expected_regrouped_work == grafana_tab_application_work_grouper.regroup_work_by_tab(work)
+
 
 def test_work_grouper_limit():
     work_grouper = get_work_grouper("Arc")
