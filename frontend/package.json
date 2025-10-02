@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview --port 8501",
+    "preview": "vite preview --port 8501 --host 0.0.0.0",
     "type-check": "tsc --noEmit",
     "format": "prettier --write .",
     "format-check": "prettier --check ."
