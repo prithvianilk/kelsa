@@ -18,33 +18,33 @@ export interface MainPageDataSuccess {
 }
 
 export interface GetMainPageDataParams {
-    epochTime: number
-    onlyActiveWork?: boolean
+  epochTime: number
+  onlyActiveWork?: boolean
 }
 
 export interface WorkByGroup {
-    seconds: number
-    group: string
+  seconds: number
+  group: string
 }
 
 export interface WorkByGroupAndTime {
-    seconds: number
-    group: string
-    done_at: string
+  seconds: number
+  group: string
+  done_at: string
 }
 
 export interface ByAppData {
-    total_time_spent_seconds: number
-    work_by_group: WorkByGroup[]
-    work_by_group_and_time: WorkByGroupAndTime[]
-    app_name: string
-    group_key: string
+  total_time_spent_seconds: number
+  work_by_group: WorkByGroup[]
+  work_by_group_and_time: WorkByGroupAndTime[]
+  app_name: string
+  group_key: string
 }
 
 export interface GetByAppDataParams {
-    app: string
-    epochTime: number
-    onlyActiveWork?: boolean
+  app: string
+  epochTime: number
+  onlyActiveWork?: boolean
 }
 
 export interface ApiError {
@@ -69,12 +69,7 @@ export class KelsaWorkServiceClient {
 
     try {
       const response = await fetch(
-        `${this.baseUrl}/api/v1/main-page-data?${searchParams.toString()}`,
-        {
-          headers: {
-            'Authorization': 'Basic amVzdXNpbnNuZWFrZXJzOmlsb3ZlbXlzZWxm'
-          }
-        }
+        `${this.baseUrl}/api/v1/main-page-data?${searchParams.toString()}`
       )
 
       if (!response.ok) {
@@ -97,12 +92,7 @@ export class KelsaWorkServiceClient {
 
     try {
       const response = await fetch(
-        `${this.baseUrl}/api/v1/by-app-data?${searchParams.toString()}`,
-        {
-          headers: {
-            'Authorization': 'Basic amVzdXNpbnNuZWFrZXJzOmlsb3ZlbXlzZWxm'
-          }
-        }
+        `${this.baseUrl}/api/v1/by-app-data?${searchParams.toString()}`
       )
 
       if (!response.ok) {
