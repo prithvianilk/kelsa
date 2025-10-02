@@ -42,6 +42,9 @@ async def auth(request: Request, call_next):
         request.state.username = "admin"
         return await call_next(request)
 
+    if request.method == "OPTIONS":
+        return await call_next(request)
+
     auth_header = request.headers.get("authorization")
     if not auth_header or not auth_header.startswith("Basic "):
         raise HTTPException(status_code=401, detail="Missing or invalid authorization header")
