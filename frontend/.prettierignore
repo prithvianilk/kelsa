@@ -1,0 +1,12 @@
+node_modules
+dist
+build
+.next
+.netlify
+coverage
+*.log
+.env*
+.DS_Store
+package-lock.json
+yarn.lock
+pnpm-lock.yaml

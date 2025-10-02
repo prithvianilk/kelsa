@@ -30,7 +30,7 @@ recorder = ApiWorkRecorder(
     config.get_config("PASSWORD"),
 )
 
-with FileLocker("/tmp/kelsa-desktop-recorder.lock"):
+with FileLocker(config.get_config("LOCK_FILE_PATH")):
     while True:
         recorder.record_work()
         time.sleep(1)
