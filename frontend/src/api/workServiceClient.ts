@@ -69,7 +69,12 @@ export class KelsaWorkServiceClient {
 
     try {
       const response = await fetch(
-        `${this.baseUrl}/api/v1/main-page-data?${searchParams.toString()}`
+        `${this.baseUrl}/api/v1/main-page-data?${searchParams.toString()}`,
+        {
+          headers: {
+            'Authorization': 'Basic amVzdXNpbnNuZWFrZXJzOmlsb3ZlbXlzZWxm'
+          }
+        }
       )
 
       if (!response.ok) {
@@ -92,7 +97,12 @@ export class KelsaWorkServiceClient {
 
     try {
       const response = await fetch(
-        `${this.baseUrl}/api/v1/by-app-data?${searchParams.toString()}`
+        `${this.baseUrl}/api/v1/by-app-data?${searchParams.toString()}`,
+        {
+          headers: {
+            'Authorization': 'Basic amVzdXNpbnNuZWFrZXJzOmlsb3ZlbXlzZWxm'
+          }
+        }
       )
 
       if (!response.ok) {
