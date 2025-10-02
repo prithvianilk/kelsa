@@ -8,11 +8,13 @@ from kafka import KafkaProducer
 from services.user_service import HtpasswdUserService
 from services.work_ingestion_service import KafkaWorkIngestionService
 from services.main_page_service import MainPageService
+from services.by_app_service import ByAppService
 from work_repo import PinotWorkRepo
 from pinot_conn import conn
 import uvicorn
 from work import Work
 from dtos.main_page import MainPageData
+from dtos.by_app import ByAppData
 from middlewares.cors import add_cors_middleware
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -91,8 +93,30 @@ async def get_main_page_data(
         raise HTTPException(status_code=500, detail="Error retrieving main page data")
 
 
+@app.get("/api/v1/by-app-data")
+async def get_by_app_data(
+    request: Request,
+    app: str = Query(..., description="Application name"),
+    epoch_time: int = Query(..., description="Start time filter in epoch milliseconds"),
+    only_active_work: bool = Query(False, description="Filter for active work only")
+) -> ByAppData:
+    """Get by-app data with grouped work information"""
+    username = request.state.username
+    by_app_service = get_by_app_service(username)
+    
+    try:
+        return by_app_service.get_by_app_data(epoch_time, app, only_active_work)
+    except Exception as e:
+        logger.error(f"Error getting by-app data: {str(e)}")
+        raise HTTPException(status_code=500, detail="Error retrieving by-app data")
+
+
 def get_main_page_service(username: str) -> MainPageService:
     return MainPageService(logger, PinotWorkRepo(conn, logger, username))
+
+
+def get_by_app_service(username: str) -> ByAppService:
+    return ByAppService(logger, PinotWorkRepo(conn, logger, username))
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
