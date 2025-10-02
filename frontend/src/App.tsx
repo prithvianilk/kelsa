@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from 'react'
 import {
   KelsaWorkServiceClient,
   type MainPageDataSuccess,
+  type ByAppData,
 } from '@src/api/mainPageClient'
 
 const API_BASE_URL =
@@ -18,6 +19,11 @@ function MyWorkPage() {
     Date.now() - DEFAULT_LOOKBACK_TIME_IN_MS
   )
   const [error, setError] = useState<string | null>(null)
+  
+  const [selectedApp, setSelectedApp] = useState<string | null>(null)
+  const [byAppData, setByAppData] = useState<ByAppData | null>(null)
+  const [byAppLoading, setByAppLoading] = useState(false)
+  const [byAppError, setByAppError] = useState<string | null>(null)
 
   useEffect(() => {
     async function getMainPageData() {
@@ -48,6 +54,36 @@ function MyWorkPage() {
     return () => {}
   }, [client])
 
+  useEffect(() => {
+    async function getByAppData() {
+      if (!selectedApp) return
+
+      setByAppLoading(true)
+      setByAppError(null)
+
+      try {
+        const response = await client.getByAppData({
+          app: selectedApp,
+          epochTime: timestamp,
+          onlyActiveWork: false,
+        })
+
+        console.log('By-app response:', response)
+
+        if ('message' in response) {
+          setByAppError(response.message)
+          return
+        }
+
+        setByAppData(response)
+      } finally {
+        setByAppLoading(false)
+      }
+    }
+
+    void getByAppData()
+  }, [client, selectedApp, timestamp])
+
   if (isLoading) {
     return <div>Loading...</div>
   }
@@ -72,12 +108,53 @@ function MyWorkPage() {
         <ul>
           {data.work_by_app.map((item) => (
             <li key={item.application}>
-              <span>{item.application}</span>
+              <button 
+                onClick={() => setSelectedApp(item.application)}
+                style={{ 
+                  background: selectedApp === item.application ? '#646cff' : 'transparent',
+                  color: selectedApp === item.application ? 'white' : 'inherit',
+                  border: 'none',
+                  cursor: 'pointer',
+                  padding: '8px 16px',
+                  marginRight: '8px'
+                }}
+              >
+                {item.application}
+              </button>
               <span>{Math.round(item.seconds / 60)} min</span>
             </li>
           ))}
         </ul>
       </section>
+
+      {selectedApp && (
+        <section>
+          <h2>Work in {selectedApp}</h2>
+          {byAppLoading && <div>Loading app data...</div>}
+          {byAppError && <div>Error: {byAppError}</div>}
+          {byAppData && !byAppLoading && (
+            <div>
+              <p>Total: {Math.floor(byAppData.total_time_spent_seconds / 60)} min ({byAppData.group_key.charAt(0).toUpperCase() + byAppData.group_key.slice(1)}-level)</p>
+              <table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid #ccc' }}>
+                <thead>
+                  <tr>
+                    <th style={{ border: '1px solid #ccc', padding: '8px' }}>{byAppData.group_key.charAt(0).toUpperCase() + byAppData.group_key.slice(1)}</th>
+                    <th style={{ border: '1px solid #ccc', padding: '8px' }}>Time</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {byAppData.work_by_group.map((item) => (
+                    <tr key={item.group}>
+                      <td style={{ border: '1px solid #ccc', padding: '8px' }}>{item.group}</td>
+                      <td style={{ border: '1px solid #ccc', padding: '8px' }}>{Math.floor(item.seconds / 60)} min</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </section>
+      )}
     </div>
   )
 }
