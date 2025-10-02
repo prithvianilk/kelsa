@@ -10,10 +10,7 @@ readme = "README.md"
 requires-python = ">=3.8"
 dependencies = [
     # Web app dependencies
-    "streamlit",
-    "pandas",
     "pinotdb",
-    "altair",
     "fastapi",
     "uvicorn[standard]",
     "kafka-python",
@@ -96,7 +93,7 @@ ignore_missing_imports = true
 show_error_codes = true
 
 [[tool.mypy.overrides]]
-module = ["pinotdb.*", "kafka.*", "streamlit.*", "altair.*"]
+module = ["pinotdb.*", "kafka.*",]
 ignore_missing_imports = true
 
 # Pytest configuration
