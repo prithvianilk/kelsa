@@ -62,22 +62,7 @@ function MyWorkPage() {
           return
         }
 
-        setData({
-          total_time_spent_seconds: 1000,
-          work_by_app: [
-            {
-              seconds: 1000,
-              application: 'test',
-            },
-          ],
-          work_by_app_and_time: [
-            {
-              seconds: 1000,
-              application: 'test',
-              done_at: '2021-01-01',
-            },
-          ],
-        })
+        setData(response)
       } finally {
         setIsLoading(false)
       }
