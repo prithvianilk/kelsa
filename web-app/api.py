@@ -90,7 +90,7 @@ async def get_main_page_data(
     username = request.state.username
     main_page_service = get_main_page_service(username)
     
-    till_time = get_default_till_time(till_time)
+    till_time = handle_none_till_time(till_time)
     
     try:
         return main_page_service.get_main_page_data(since_time, till_time, only_active_work)
@@ -111,7 +111,7 @@ async def get_by_app_data(
     username = request.state.username
     by_app_service = get_by_app_service(username)
     
-    till_time = get_default_till_time(till_time)
+    till_time = handle_none_till_time(till_time)
     
     try:
         return by_app_service.get_by_app_data(since_time, till_time, app, only_active_work)
@@ -127,7 +127,7 @@ def get_main_page_service(username: str) -> MainPageService:
 def get_by_app_service(username: str) -> ByAppService:
     return ByAppService(logger, PinotWorkRepo(conn, logger, username))
 
-def get_default_till_time(till_time: int | None) -> int:
+def handle_none_till_time(till_time: int | None) -> int:
     if till_time is None:
         return get_default_till_time()
     return till_time

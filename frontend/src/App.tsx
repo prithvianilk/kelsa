@@ -19,6 +19,15 @@ import {
   ChartTooltipContent,
 } from '@/components/ui/chart'
 import { Pie, PieChart } from 'recharts'
+import { Calendar } from '@/components/ui/calendar'
+import { Label } from '@/components/ui/label'
+import { Input } from '@/components/ui/input'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
+import { ChevronDownIcon } from 'lucide-react'
 
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000'
@@ -48,6 +57,10 @@ function MyWorkPage() {
     Date.now() - DEFAULT_LOOKBACK_TIME_IN_MS
   )
   const [tillTime, setTillTime] = useState<number>(Date.now())
+  const [sinceOpen, setSinceOpen] = useState(false)
+  const [tillOpen, setTillOpen] = useState(false)
+  const [sinceTimeValue, setSinceTimeValue] = useState<string>('')
+  const [tillTimeValue, setTillTimeValue] = useState<string>('')
   const [error, setError] = useState<string | null>(null)
   const [selectedApp, setSelectedApp] = useState<string | null>(null)
   const [byAppData, setByAppData] = useState<ByAppData | null>(null)
@@ -148,24 +161,59 @@ function MyWorkPage() {
     )
   }
 
-  const formatDateTimeLocal = (timestamp: number) => {
+  const combineDateAndTime = (date: Date, timeString: string): number => {
+    const [hours, minutes, seconds] = timeString.split(':').map(Number)
+    const combined = new Date(date)
+    combined.setHours(hours || 0, minutes || 0, seconds || 0, 0)
+    return combined.getTime()
+  }
+
+  const handleSinceSelect = (date: Date | undefined) => {
+    if (date) {
+      const timestamp = sinceTimeValue 
+        ? combineDateAndTime(date, sinceTimeValue)
+        : date.getTime()
+      setSinceTime(timestamp)
+      setSinceOpen(false)
+    }
+  }
+
+  const handleTillSelect = (date: Date | undefined) => {
+    if (date) {
+      const timestamp = tillTimeValue 
+        ? combineDateAndTime(date, tillTimeValue)
+        : date.getTime()
+      setTillTime(timestamp)
+      setTillOpen(false)
+    }
+  }
+
+  const handleSinceTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const timeValue = e.target.value
+    setSinceTimeValue(timeValue)
+    if (timeValue) {
+      const date = new Date(sinceTime)
+      const timestamp = combineDateAndTime(date, timeValue)
+      setSinceTime(timestamp)
+    }
+  }
+
+  const handleTillTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const timeValue = e.target.value
+    setTillTimeValue(timeValue)
+    if (timeValue) {
+      const date = new Date(tillTime)
+      const timestamp = combineDateAndTime(date, timeValue)
+      setTillTime(timestamp)
+    }
+  }
+
+  const getTimeString = (timestamp: number): string => {
     const date = new Date(timestamp)
-    const year = date.getFullYear()
-    const month = String(date.getMonth() + 1).padStart(2, '0')
-    const day = String(date.getDate()).padStart(2, '0')
     const hours = String(date.getHours()).padStart(2, '0')
     const minutes = String(date.getMinutes()).padStart(2, '0')
-    return `${year}-${month}-${day}T${hours}:${minutes}`
-  }
-
-  const handleSinceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const date = new Date(e.target.value)
-    setSinceTime(date.getTime())
-  }
-
-  const handleTillChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const date = new Date(e.target.value)
-    setTillTime(date.getTime())
+    const seconds = String(date.getSeconds()).padStart(2, '0')
+    return `${hours}:${minutes}:${seconds}`
   }
 
   return (
@@ -178,30 +226,86 @@ function MyWorkPage() {
               Time analytics for your work
             </p>
           </div>
-          <div className="flex gap-4 items-end">
-            <div className="flex flex-col gap-2">
-              <label htmlFor="since-time" className="text-sm font-medium">
-                Since
-              </label>
-              <input
-                id="since-time"
-                type="datetime-local"
-                value={formatDateTimeLocal(sinceTime)}
-                onChange={handleSinceChange}
-                className="rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              />
+          <div className="flex flex-col md:flex-row gap-4 md:items-end">
+            <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex flex-col gap-3">
+                <Label htmlFor="since-date" className="px-1">
+                  Since Date
+                </Label>
+                <Popover open={sinceOpen} onOpenChange={setSinceOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      id="since-date"
+                      className="w-full sm:w-32 justify-between font-normal"
+                    >
+                      {new Date(sinceTime).toLocaleDateString()}
+                      <ChevronDownIcon className="h-4 w-4" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto overflow-hidden p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={new Date(sinceTime)}
+                      captionLayout="dropdown"
+                      onSelect={handleSinceSelect}
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+              <div className="flex flex-col gap-3">
+                <Label htmlFor="since-time" className="px-1">
+                  Time
+                </Label>
+                <Input
+                  type="time"
+                  id="since-time"
+                  step="1"
+                  value={sinceTimeValue || getTimeString(sinceTime)}
+                  onChange={handleSinceTimeChange}
+                  className="bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
+                />
+              </div>
             </div>
-            <div className="flex flex-col gap-2">
-              <label htmlFor="till-time" className="text-sm font-medium">
-                Till
-              </label>
-              <input
-                id="till-time"
-                type="datetime-local"
-                value={formatDateTimeLocal(tillTime)}
-                onChange={handleTillChange}
-                className="rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              />
+            <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex flex-col gap-3">
+                <Label htmlFor="till-date" className="px-1">
+                  Till Date
+                </Label>
+                <Popover open={tillOpen} onOpenChange={setTillOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      id="till-date"
+                      className="w-full sm:w-32 justify-between font-normal"
+                    >
+                      {new Date(tillTime).toLocaleDateString()}
+                      <ChevronDownIcon className="h-4 w-4" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto overflow-hidden p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={new Date(tillTime)}
+                      captionLayout="dropdown"
+                      onSelect={handleTillSelect}
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+              <div className="flex flex-col gap-3">
+                <Label htmlFor="till-time" className="px-1">
+                  Time
+                </Label>
+                <Input
+                  type="time"
+                  id="till-time"
+                  step="1"
+                  value={tillTimeValue || getTimeString(tillTime)}
+                  onChange={handleTillTimeChange}
+                  className="bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
+                />
+              </div>
             </div>
           </div>
         </header>
