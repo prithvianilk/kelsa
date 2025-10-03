@@ -1,15 +1,31 @@
 import { useEffect, useMemo, useState } from 'react'
-
+import { cn } from '@/lib/utils'
 import {
   KelsaWorkServiceClient,
   type MainPageDataSuccess,
   type ByAppData,
 } from '@src/api/workServiceClient'
+import { Button } from '@/components/ui/button'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000'
 
 const DEFAULT_LOOKBACK_TIME_IN_MS = 1000 * 60 * 60 * 24
+
+function formatMinutes(seconds: number) {
+  return Math.round(seconds / 60)
+}
+
+function formatHours(seconds: number) {
+  return Math.floor((seconds / 3600) * 100) / 100
+}
 
 function MyWorkPage() {
   const client = useMemo(() => new KelsaWorkServiceClient(API_BASE_URL), [])
@@ -19,7 +35,6 @@ function MyWorkPage() {
     Date.now() - DEFAULT_LOOKBACK_TIME_IN_MS
   )
   const [error, setError] = useState<string | null>(null)
-  
   const [selectedApp, setSelectedApp] = useState<string | null>(null)
   const [byAppData, setByAppData] = useState<ByAppData | null>(null)
   const [byAppLoading, setByAppLoading] = useState(false)
@@ -36,8 +51,6 @@ function MyWorkPage() {
           onlyActiveWork: false,
         })
 
-        console.log(response)
-
         if ('message' in response) {
           setError(response.message)
           return
@@ -50,9 +63,7 @@ function MyWorkPage() {
     }
 
     void getMainPageData()
-
-    return () => {}
-  }, [client])
+  }, [client, timestamp])
 
   useEffect(() => {
     async function getByAppData() {
@@ -67,8 +78,6 @@ function MyWorkPage() {
           epochTime: timestamp,
           onlyActiveWork: false,
         })
-
-        console.log('By-app response:', response)
 
         if ('message' in response) {
           setByAppError(response.message)
@@ -86,10 +95,10 @@ function MyWorkPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600 text-lg">Loading your work data...</p>
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="space-y-4 text-center">
+          <div className="mx-auto h-12 w-12 animate-spin rounded-full border-2 border-muted-foreground/40 border-t-primary" />
+          <p className="text-muted-foreground">Loading your work data...</p>
         </div>
       </div>
     )
@@ -97,159 +106,143 @@ function MyWorkPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-red-50 to-pink-50 flex items-center justify-center">
-        <div className="bg-white rounded-lg shadow-lg p-8 max-w-md mx-auto">
-          <div className="text-red-600 text-6xl mb-4 text-center">⚠️</div>
-          <h2 className="text-xl font-semibold text-gray-800 mb-2">Something went wrong</h2>
-          <p className="text-gray-600">{error}</p>
-        </div>
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <Card className="w-full max-w-md text-center">
+          <CardHeader>
+            <CardTitle className="text-destructive">Something went wrong</CardTitle>
+            <CardDescription>{error}</CardDescription>
+          </CardHeader>
+        </Card>
       </div>
     )
   }
 
   if (!data) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-yellow-50 to-orange-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="text-yellow-600 text-6xl mb-4">📊</div>
-          <h2 className="text-xl font-semibold text-gray-800 mb-2">No data available</h2>
-          <p className="text-gray-600">Try refreshing the page or check your connection.</p>
-        </div>
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <Card className="w-full max-w-md text-center">
+          <CardHeader>
+            <CardTitle>No data available</CardTitle>
+            <CardDescription>
+              Try refreshing the page or check your connection.
+            </CardDescription>
+          </CardHeader>
+        </Card>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
-      <div className="container mx-auto px-6 py-8">
-        <div className="max-w-6xl mx-auto">
-          {/* Header */}
-          <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold text-gray-800 mb-2">Work Dashboard</h1>
-            <p className="text-gray-600">Track your productivity across applications</p>
-          </div>
+    <div className="min-h-screen bg-background text-foreground">
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-6 py-10">
+        <header className="flex flex-col gap-2">
+          <h1 className="text-3xl font-semibold tracking-tight">Work analytics dashboard</h1>
+          <p className="text-muted-foreground">
+            Time analytics for your work
+          </p>
+        </header>
 
-          {/* Total Time Card */}
-          <div className="bg-white rounded-xl shadow-lg p-8 mb-8 border border-gray-100">
-            <div className="flex items-center justify-between">
+        <section className="grid gap-6 md:grid-cols-[2fr,3fr]">
+          <Card className="bg-card/60 backdrop-blur">
+            <CardHeader>
+              <CardDescription>Total Time Spent</CardDescription>
+              <CardTitle className="text-4xl font-semibold">
+                {formatMinutes(data.total_time_spent_seconds)}
+                <span className="ml-2 text-base font-normal text-muted-foreground">
+                  minutes
+                </span>
+              </CardTitle>
+            </CardHeader>
+          </Card>
+
+          <Card className="bg-card/60 backdrop-blur md:col-span-1">
+            <CardHeader>
+              <CardTitle className="text-sm font-medium">By Application</CardTitle>
+              <CardDescription>Last 24 hours</CardDescription>
+            </CardHeader>
+            <CardContent className="grid gap-2">
+              {data.work_by_app.map((item) => {
+                const minutes = formatMinutes(item.seconds)
+                return (
+                  <Button
+                    key={item.application}
+                    variant={selectedApp === item.application ? 'default' : 'ghost'}
+                    className={cn(
+                      'justify-between text-left bg-transparent hover:bg-accent/40',
+                      selectedApp === item.application && 'bg-primary text-primary-foreground hover:bg-primary'
+                    )}
+                    onClick={() => setSelectedApp(item.application)}
+                  >
+                    <span className="flex flex-col">
+                      <span className="text-sm font-medium">{item.application}</span>
+                      <span className="text-xs text-muted-foreground">
+                        Last 24 hours
+                      </span>
+                    </span>
+                    <span className="text-sm font-medium">{minutes} min</span>
+                  </Button>
+                )
+              })}
+            </CardContent>
+          </Card>
+        </section>
+
+        {selectedApp ? (
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
               <div>
-                <h2 className="text-2xl font-semibold text-gray-800 mb-2">Total Time Spent</h2>
-                <div className="text-4xl font-bold text-blue-600">
-                  {Math.round(data.total_time_spent_seconds / 60)}
-                  <span className="text-lg font-normal text-gray-600 ml-2">minutes</span>
-                </div>
+                <CardDescription>Work in</CardDescription>
+                <CardTitle>{selectedApp}</CardTitle>
               </div>
-              <div className="text-blue-500 text-6xl">⏱️</div>
-            </div>
-          </div>
-
-          {/* Apps Grid */}
-          <div className="bg-white rounded-xl shadow-lg p-8 mb-8 border border-gray-100">
-            <h2 className="text-2xl font-semibold text-gray-800 mb-6">By Application</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {data.work_by_app.map((item) => (
-                <button
-                  key={item.application}
-                  onClick={() => setSelectedApp(item.application)}
-                  className={`p-4 rounded-lg border-2 transition-all duration-200 ${
-                    selectedApp === item.application
-                      ? 'border-blue-500 bg-blue-50 shadow-md'
-                      : 'border-gray-200 hover:border-gray-300 hover:shadow-sm'
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="text-left">
-                      <h3 className="font-medium text-gray-800">{item.application}</h3>
-                      <p className="text-gray-600 text-sm">Last 24 hours</p>
-                    </div>
-                    <div className="text-right">
-                      <div className="text-xl font-bold text-blue-600">
-                        {Math.round(item.seconds / 60)}
-                      </div>
-                      <div className="text-sm text-gray-500">min</div>
-                    </div>
-                  </div>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Selected App Details */}
-          {selectedApp && (
-            <div className="bg-white rounded-xl shadow-lg p-8 border border-gray-100">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-semibold text-gray-800">
-                  Work in {selectedApp}
-                </h2>
-                <button
-                  onClick={() => setSelectedApp(null)}
-                  className="text-gray-400 hover:text-gray-600 transition-colors"
-                >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-
+              <Button variant="ghost" size="sm" onClick={() => setSelectedApp(null)}>
+                Clear
+              </Button>
+            </CardHeader>
+            <CardContent className="space-y-6">
               {byAppLoading && (
-                <div className="flex items-center justify-center py-12">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                  <span className="ml-3 text-gray-600">Loading app data...</span>
+                <div className="flex items-center justify-center py-10 text-muted-foreground">
+                  Loading app data...
                 </div>
               )}
 
               {byAppError && (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                  <div className="flex items-center">
-                    <div className="text-red-500 text-xl mr-3">⚠️</div>
-                    <div>
-                      <h3 className="font-medium text-red-800">Error loading data</h3>
-                      <p className="text-red-600 text-sm">{byAppError}</p>
-                    </div>
-                  </div>
+                <div className="rounded-md border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+                  {byAppError}
                 </div>
               )}
 
-              {byAppData && !byAppLoading && (
-                <div>
-                  <div className="mb-6 p-4 bg-blue-50 rounded-lg">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <span className="text-sm text-blue-600 font-medium">Total in {selectedApp}</span>
-                        <div className="text-2xl font-bold text-blue-800">
-                          {Math.floor(byAppData.total_time_spent_seconds / 60)} minutes
-                        </div>
-                      </div>
-                      <div className="text-blue-200 text-sm">
-                        {byAppData.group_key.charAt(0).toUpperCase() + byAppData.group_key.slice(1)}-level grouping
-                      </div>
-                    </div>
+              {byAppData && !byAppLoading && !byAppError && (
+                <div className="space-y-6">
+                  <div className="rounded-md border bg-muted/40 p-4">
+                    <p className="text-xs font-medium text-muted-foreground">
+                      Total in {selectedApp}
+                    </p>
+                    <p className="text-2xl font-semibold">
+                      {formatMinutes(byAppData.total_time_spent_seconds)} minutes
+                    </p>
                   </div>
 
-                  <div className="overflow-hidden rounded-lg border border-gray-200">
-                    <table className="min-w-full divide-y divide-gray-200">
-                      <thead className="bg-gray-50">
+                  <div className="overflow-hidden rounded-md border">
+                    <table className="min-w-full text-sm">
+                      <thead className="bg-muted/60 text-left text-xs uppercase text-muted-foreground">
                         <tr>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            {byAppData.group_key.charAt(0).toUpperCase() + byAppData.group_key.slice(1)}
+                          <th className="px-6 py-3 font-medium">
+                            {byAppData.group_key.charAt(0).toUpperCase() +
+                              byAppData.group_key.slice(1)}
                           </th>
-                          <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Time Spent
-                          </th>
+                          <th className="px-6 py-3 text-right font-medium">Time spent</th>
                         </tr>
                       </thead>
-                      <tbody className="bg-white divide-y divide-gray-200">
+                      <tbody className="divide-y">
                         {byAppData.work_by_group.map((item) => (
-                          <tr key={item.group} className="hover:bg-gray-50">
-                            <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-900">
-                              {item.group}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-right">
-                              <span className="text-gray-900 font-medium">
-                                {Math.floor(item.seconds / 60)} min
+                          <tr key={item.group} className="hover:bg-muted/40">
+                            <td className="px-6 py-4 font-medium">{item.group}</td>
+                            <td className="px-6 py-4 text-right">
+                              <span className="font-medium">
+                                {formatMinutes(item.seconds)} min
                               </span>
-                              <span className="ml-2 text-gray-500 text-sm">
-                                ({Math.floor(item.seconds / 3600 * 100) / 100}h)
+                              <span className="ml-2 text-xs text-muted-foreground">
+                                ({formatHours(item.seconds)}h)
                               </span>
                             </td>
                           </tr>
@@ -259,9 +252,20 @@ function MyWorkPage() {
                   </div>
                 </div>
               )}
-            </div>
-          )}
-        </div>
+            </CardContent>
+          </Card>
+        ) : (
+          <Card className="border-dashed">
+            <CardHeader>
+              <CardTitle className="text-base font-medium">
+                Select an application
+              </CardTitle>
+              <CardDescription>
+                Choose an app from the list to explore time spent across groups.
+              </CardDescription>
+            </CardHeader>
+          </Card>
+        )}
       </div>
     </div>
   )
