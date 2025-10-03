@@ -17,8 +17,6 @@ import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
-  ChartLegend,
-  ChartLegendContent,
 } from '@/components/ui/chart'
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from 'recharts'
 
@@ -195,6 +193,101 @@ function MyWorkPage() {
           </Card>
         </section>
 
+        {data.work_by_app_and_time.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Work over time</CardTitle>
+              <CardDescription>Activity by application</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ChartContainer
+                config={Object.fromEntries(
+                  Array.from(
+                    new Set(data.work_by_app_and_time.map((d) => d.application))
+                  ).map((app, idx) => [
+                    app,
+                    {
+                      label: app,
+                      color: `hsl(${(idx * 360) / Array.from(new Set(data.work_by_app_and_time.map((d) => d.application))).length}, 70%, 50%)`,
+                    },
+                  ])
+                )}
+                className="h-[300px]"
+              >
+                <AreaChart
+                  data={(() => {
+                    const timeMap = new Map<string, Record<string, string | number>>()
+                    
+                    data.work_by_app_and_time.forEach((item) => {
+                      const time = new Date(item.done_at).toLocaleString('en-US', {
+                        month: 'short',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })
+                      
+                      if (!timeMap.has(time)) {
+                        timeMap.set(time, { time })
+                      }
+                      
+                      const entry = timeMap.get(time)!
+                      entry[item.application] = item.seconds / 60
+                    })
+                    
+                    return Array.from(timeMap.values()).sort((a, b) => {
+                      return new Date(a.time as string).getTime() - new Date(b.time as string).getTime()
+                    })
+                  })()}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis
+                    dataKey="time"
+                    tickLine={false}
+                    axisLine={false}
+                    tickMargin={8}
+                    tickFormatter={(value) => {
+                      const parts = value.split(', ')
+                      return parts[0]
+                    }}
+                  />
+                  <YAxis
+                    tickLine={false}
+                    axisLine={false}
+                    tickMargin={8}
+                    tickFormatter={(value) => `${value}m`}
+                  />
+                  <ChartTooltip
+                    content={
+                      <ChartTooltipContent
+                        labelFormatter={(value) => value}
+                        formatter={(value, name) => (
+                          <div className="flex items-center gap-2">
+                            <span className="text-muted-foreground">{name}:</span>
+                            <span className="font-medium">{value} min</span>
+                          </div>
+                        )}
+                      />
+                    }
+                  />
+                  {Array.from(
+                    new Set(data.work_by_app_and_time.map((d) => d.application))
+                  ).map((app) => (
+                    <Area
+                      key={app}
+                      type="monotone"
+                      dataKey={app}
+                      stackId="1"
+                      stroke={`var(--color-${app})`}
+                      fill={`var(--color-${app})`}
+                      fillOpacity={0.6}
+                    />
+                  ))}
+                </AreaChart>
+              </ChartContainer>
+            </CardContent>
+          </Card>
+        )}
+
         {selectedApp ? (
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
@@ -229,99 +322,6 @@ function MyWorkPage() {
                       {formatMinutes(byAppData.total_time_spent_seconds)} minutes
                     </p>
                   </div>
-
-                  {byAppData.work_by_group_and_time.length > 0 && (
-                    <div className="rounded-md border bg-card p-6">
-                      <h3 className="mb-4 text-sm font-medium">Work over time</h3>
-                      <ChartContainer
-                        config={Object.fromEntries(
-                          Array.from(
-                            new Set(byAppData.work_by_group_and_time.map((d) => d.group))
-                          ).map((group, idx) => [
-                            group,
-                            {
-                              label: group,
-                              color: `hsl(${(idx * 360) / Array.from(new Set(byAppData.work_by_group_and_time.map((d) => d.group))).length}, 70%, 50%)`,
-                            },
-                          ])
-                        )}
-                        className="h-[300px]"
-                      >
-                        <AreaChart
-                          data={(() => {
-                            const timeMap = new Map<string, Record<string, string | number>>()
-                            
-                            byAppData.work_by_group_and_time.forEach((item) => {
-                              const time = new Date(item.done_at).toLocaleString('en-US', {
-                                month: 'short',
-                                day: 'numeric',
-                                hour: '2-digit',
-                                minute: '2-digit',
-                              })
-                              
-                              if (!timeMap.has(time)) {
-                                timeMap.set(time, { time })
-                              }
-                              
-                              const entry = timeMap.get(time)!
-                              entry[item.group] = item.seconds / 60
-                            })
-                            
-                            return Array.from(timeMap.values()).sort((a, b) => {
-                              return new Date(a.time as string).getTime() - new Date(b.time as string).getTime()
-                            })
-                          })()}
-                        >
-                          <CartesianGrid strokeDasharray="3 3" />
-                          <XAxis
-                            dataKey="time"
-                            tickLine={false}
-                            axisLine={false}
-                            tickMargin={8}
-                            tickFormatter={(value) => {
-                              const parts = value.split(', ')
-                              return parts[0]
-                            }}
-                          />
-                          <YAxis
-                            tickLine={false}
-                            axisLine={false}
-                            tickMargin={8}
-                            tickFormatter={(value) => `${value}m`}
-                          />
-                          <ChartTooltip
-                            content={
-                              <ChartTooltipContent
-                                labelFormatter={(value) => value}
-                                formatter={(value, name) => (
-                                  <>
-                                    <div className="flex items-center gap-2">
-                                      <span className="text-muted-foreground">{name}:</span>
-                                      <span className="font-medium">{value} min</span>
-                                    </div>
-                                  </>
-                                )}
-                              />
-                            }
-                          />
-                          <ChartLegend content={<ChartLegendContent />} />
-                          {Array.from(
-                            new Set(byAppData.work_by_group_and_time.map((d) => d.group))
-                          ).map((group) => (
-                            <Area
-                              key={group}
-                              type="monotone"
-                              dataKey={group}
-                              stackId="1"
-                              stroke={`var(--color-${group})`}
-                              fill={`var(--color-${group})`}
-                              fillOpacity={0.6}
-                            />
-                          ))}
-                        </AreaChart>
-                      </ChartContainer>
-                    </div>
-                  )}
 
                   <div className="overflow-hidden rounded-md border">
                     <table className="min-w-full text-sm">
