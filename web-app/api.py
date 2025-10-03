@@ -82,15 +82,18 @@ async def record_work(request: Request, work: Work):
 @app.get("/api/v1/main-page-data")
 async def get_main_page_data(
     request: Request,
-    epoch_time: int = Query(..., description="Start time filter in epoch milliseconds"),
+    since_time: int = Query(..., description="Start time filter in epoch milliseconds"),
+    till_time: int = Query(None, description="End time filter in epoch milliseconds"),
     only_active_work: bool = Query(False, description="Filter for active work only")
 ) -> MainPageData:
     """Get main page data"""
     username = request.state.username
     main_page_service = get_main_page_service(username)
     
+    till_time = get_default_till_time(till_time)
+    
     try:
-        return main_page_service.get_main_page_data(epoch_time, only_active_work)
+        return main_page_service.get_main_page_data(since_time, till_time, only_active_work)
     except Exception as e:
         logger.error(f"Error getting main page data: {str(e)}")
         raise HTTPException(status_code=500, detail="Error retrieving main page data")
@@ -100,15 +103,18 @@ async def get_main_page_data(
 async def get_by_app_data(
     request: Request,
     app: str = Query(..., description="Application name"),
-    epoch_time: int = Query(..., description="Start time filter in epoch milliseconds"),
+    since_time: int = Query(..., description="Start time filter in epoch milliseconds"),
+    till_time: int = Query(None, description="End time filter in epoch milliseconds"),
     only_active_work: bool = Query(False, description="Filter for active work only")
 ) -> ByAppData:
     """Get by-app data with grouped work information"""
     username = request.state.username
     by_app_service = get_by_app_service(username)
     
+    till_time = get_default_till_time(till_time)
+    
     try:
-        return by_app_service.get_by_app_data(epoch_time, app, only_active_work)
+        return by_app_service.get_by_app_data(since_time, till_time, app, only_active_work)
     except Exception as e:
         logger.error(f"Error getting by-app data: {str(e)}")
         raise HTTPException(status_code=500, detail="Error retrieving by-app data")
@@ -120,6 +126,15 @@ def get_main_page_service(username: str) -> MainPageService:
 
 def get_by_app_service(username: str) -> ByAppService:
     return ByAppService(logger, PinotWorkRepo(conn, logger, username))
+
+def get_default_till_time(till_time: int | None) -> int:
+    if till_time is None:
+        return get_default_till_time()
+    return till_time
+
+def get_default_till_time() -> int:
+    import time
+    return int(time.time() * 1000)
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)

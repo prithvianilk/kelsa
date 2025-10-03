@@ -44,9 +44,10 @@ function MyWorkPage() {
   const client = useMemo(() => new KelsaWorkServiceClient(API_BASE_URL), [])
   const [data, setData] = useState<MainPageDataSuccess | null>(null)
   const [isLoading, setIsLoading] = useState(true)
-  const [timestamp] = useState<number>(
+  const [sinceTime, setSinceTime] = useState<number>(
     Date.now() - DEFAULT_LOOKBACK_TIME_IN_MS
   )
+  const [tillTime, setTillTime] = useState<number>(Date.now())
   const [error, setError] = useState<string | null>(null)
   const [selectedApp, setSelectedApp] = useState<string | null>(null)
   const [byAppData, setByAppData] = useState<ByAppData | null>(null)
@@ -60,7 +61,8 @@ function MyWorkPage() {
 
       try {
         const response = await client.getMainPageData({
-          epochTime: timestamp,
+          sinceTime: sinceTime,
+          tillTime: tillTime,
           onlyActiveWork: false,
         })
 
@@ -76,7 +78,7 @@ function MyWorkPage() {
     }
     
     void getMainPageData()
-  }, [client, timestamp])
+  }, [client, sinceTime, tillTime])
 
   useEffect(() => {
     async function getByAppData() {
@@ -88,7 +90,8 @@ function MyWorkPage() {
       try {
         const response = await client.getByAppData({
           app: selectedApp,
-          epochTime: timestamp,
+          sinceTime: sinceTime,
+          tillTime: tillTime,
           onlyActiveWork: false,
         })
 
@@ -104,7 +107,7 @@ function MyWorkPage() {
     }
 
     void getByAppData()
-  }, [client, selectedApp, timestamp])
+  }, [client, selectedApp, sinceTime, tillTime])
 
   if (isLoading) {
     return (
@@ -145,14 +148,62 @@ function MyWorkPage() {
     )
   }
 
+  const formatDateTimeLocal = (timestamp: number) => {
+    const date = new Date(timestamp)
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    const hours = String(date.getHours()).padStart(2, '0')
+    const minutes = String(date.getMinutes()).padStart(2, '0')
+    return `${year}-${month}-${day}T${hours}:${minutes}`
+  }
+
+  const handleSinceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const date = new Date(e.target.value)
+    setSinceTime(date.getTime())
+  }
+
+  const handleTillChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const date = new Date(e.target.value)
+    setTillTime(date.getTime())
+  }
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-6 py-10">
-        <header className="flex flex-col gap-2">
-          <h1 className="text-3xl font-semibold tracking-tight">Work analytics dashboard</h1>
-          <p className="text-muted-foreground">
-            Time analytics for your work
-          </p>
+        <header className="flex flex-col gap-4">
+          <div className="flex flex-col gap-2">
+            <h1 className="text-3xl font-semibold tracking-tight">Work analytics dashboard</h1>
+            <p className="text-muted-foreground">
+              Time analytics for your work
+            </p>
+          </div>
+          <div className="flex gap-4 items-end">
+            <div className="flex flex-col gap-2">
+              <label htmlFor="since-time" className="text-sm font-medium">
+                Since
+              </label>
+              <input
+                id="since-time"
+                type="datetime-local"
+                value={formatDateTimeLocal(sinceTime)}
+                onChange={handleSinceChange}
+                className="rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <label htmlFor="till-time" className="text-sm font-medium">
+                Till
+              </label>
+              <input
+                id="till-time"
+                type="datetime-local"
+                value={formatDateTimeLocal(tillTime)}
+                onChange={handleTillChange}
+                className="rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              />
+            </div>
+          </div>
         </header>
 
         <div className="grid gap-6 md:grid-cols-2">

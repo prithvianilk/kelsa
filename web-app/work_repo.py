@@ -11,44 +11,44 @@ class WorkRepo:
         self.username = username
 
     @abstractmethod
-    def get_work_done_since_start_time_by_application(self, start_time: int):
+    def get_work_done_since_start_time_by_application(self, start_time: int, till_time: int):
         pass
 
     @abstractmethod
     def get_work_done_since_start_time_and_activity_is_by_application(
-        self, start_time: int, active: bool
+        self, start_time: int, till_time: int, active: bool
     ):
         pass
 
     @abstractmethod
-    def get_work_done_since_start_time_and_app_is_by_tab(self, start_time: int, app: str):
+    def get_work_done_since_start_time_and_app_is_by_tab(self, start_time: int, till_time: int, app: str):
         pass
 
     @abstractmethod
     def get_work_done_since_start_time_and_app_is_and_activity_is_by_tab(
-        self, start_time: int, app: str, active: bool
+        self, start_time: int, till_time: int, app: str, active: bool
     ):
         pass
 
     @abstractmethod
     def get_work_done_since_start_time_and_app_is_by_tab_and_date_hour(
-        self, start_time: int, app: str
+        self, start_time: int, till_time: int, app: str
     ):
         pass
 
     @abstractmethod
     def get_work_done_since_start_time_and_app_is_and_activity_is_by_tab_and_date_hour(
-        self, start_time: int, app: str, active: bool
+        self, start_time: int, till_time: int, app: str, active: bool
     ):
         pass
 
     @abstractmethod
-    def get_work_done_since_start_time_by_app_and_date_hour(self, start_time: int):
+    def get_work_done_since_start_time_by_app_and_date_hour(self, start_time: int, till_time: int):
         pass
 
     @abstractmethod
     def get_work_done_since_start_time_and_activity_is_by_app_and_date_hour(
-        self, start_time: int, active: bool
+        self, start_time: int, till_time: int, active: bool
     ):
         pass
 
@@ -59,10 +59,10 @@ class PinotWorkRepo(WorkRepo):
         self.conn = conn
         self.logger = logger
 
-    def get_work_done_since_start_time_by_application(self, start_time: int):
+    def get_work_done_since_start_time_by_application(self, start_time: int, till_time: int):
         query = f"""
             select count (1) work_done_in_seconds, application from work
-            where done_at >= {start_time} and username = '{self.username}'
+            where done_at >= {start_time} and done_at <= {till_time} and username = '{self.username}'
             group by 2
             order by 1 desc
             limit 1000;
@@ -74,11 +74,11 @@ class PinotWorkRepo(WorkRepo):
         return result
 
     def get_work_done_since_start_time_and_activity_is_by_application(
-        self, start_time: int, active: bool
+        self, start_time: int, till_time: int, active: bool
     ):
         query = f"""
             select count (1) work_done_in_seconds, application from work
-            where done_at >= {start_time} and active = {active} and username = '{self.username}'
+            where done_at >= {start_time} and done_at <= {till_time} and active = {active} and username = '{self.username}'
             group by 2
             order by 1 desc
             limit 1000;
@@ -89,10 +89,10 @@ class PinotWorkRepo(WorkRepo):
         self.logger.debug(f"Ran query: {query}\nResult: {result}")
         return result
 
-    def get_work_done_since_start_time_and_app_is_by_tab(self, start_time: int, app: str):
+    def get_work_done_since_start_time_and_app_is_by_tab(self, start_time: int, till_time: int, app: str):
         query = f"""
             select count (1) work_done_in_seconds, tab from work
-            where done_at >= {start_time} and application = '{app}' and username = '{self.username}'
+            where done_at >= {start_time} and done_at <= {till_time} and application = '{app}' and username = '{self.username}'
             group by 2
             order by 1 desc
             limit 1000;
@@ -104,11 +104,11 @@ class PinotWorkRepo(WorkRepo):
         return result
 
     def get_work_done_since_start_time_and_app_is_and_activity_is_by_tab(
-        self, start_time: int, app: str, active: bool
+        self, start_time: int, till_time: int, app: str, active: bool
     ):
         query = f"""
             select count (1) work_done_in_seconds, tab from work
-            where done_at >= {start_time} and application = '{app}' and active = {active} and username = '{self.username}'
+            where done_at >= {start_time} and done_at <= {till_time} and application = '{app}' and active = {active} and username = '{self.username}'
             group by 2
             order by 1 desc
             limit 1000;
@@ -120,7 +120,7 @@ class PinotWorkRepo(WorkRepo):
         return result
 
     def get_work_done_since_start_time_and_app_is_by_tab_and_date_hour(
-        self, start_time: int, app: str
+        self, start_time: int, till_time: int, app: str
     ):
         query = f"""
             select count(1) work_done_in_seconds,
@@ -132,7 +132,7 @@ class PinotWorkRepo(WorkRepo):
                     '1:MILLISECONDS'
                 ) done_at
             from work
-            where done_at >= {start_time} and application = '{app}' and username = '{self.username}'
+            where done_at >= {start_time} and done_at <= {till_time} and application = '{app}' and username = '{self.username}'
             group by 2, 3
             order by 3 desc,
                 1 desc
@@ -145,7 +145,7 @@ class PinotWorkRepo(WorkRepo):
         return result
 
     def get_work_done_since_start_time_and_app_is_and_activity_is_by_tab_and_date_hour(
-        self, start_time: int, app: str, active: bool
+        self, start_time: int, till_time: int, app: str, active: bool
     ):
         query = f"""
             select count(1) work_done_in_seconds,
@@ -157,7 +157,7 @@ class PinotWorkRepo(WorkRepo):
                     '1:MILLISECONDS'
                 ) done_at
             from work
-            where done_at >= {start_time} and application = '{app}' and active = {active} and username = '{self.username}'
+            where done_at >= {start_time} and done_at <= {till_time} and application = '{app}' and active = {active} and username = '{self.username}'
             group by 2, 3
             order by 3 desc,
                 1 desc
@@ -167,7 +167,7 @@ class PinotWorkRepo(WorkRepo):
         curs.execute(query)
         return curs.fetchall()
 
-    def get_work_done_since_start_time_by_app_and_date_hour(self, start_time: int):
+    def get_work_done_since_start_time_by_app_and_date_hour(self, start_time: int, till_time: int):
         query = f"""
             select count(1) work_done_in_seconds,
                 application,
@@ -178,7 +178,7 @@ class PinotWorkRepo(WorkRepo):
                     '1:MILLISECONDS'
                 ) done_at
             from work
-            where done_at >= {start_time} and username = '{self.username}'
+            where done_at >= {start_time} and done_at <= {till_time} and username = '{self.username}'
             group by 2, 3
             order by 3 desc,
                 1 desc
@@ -191,7 +191,7 @@ class PinotWorkRepo(WorkRepo):
         return result
 
     def get_work_done_since_start_time_and_activity_is_by_app_and_date_hour(
-        self, start_time: int, active: bool
+        self, start_time: int, till_time: int, active: bool
     ):
         query = f"""
             select count(1) work_done_in_seconds,
@@ -203,7 +203,7 @@ class PinotWorkRepo(WorkRepo):
                     '1:MILLISECONDS'
                 ) done_at
             from work
-            where done_at >= {start_time} and active = {active} and username = '{self.username}'
+            where done_at >= {start_time} and done_at <= {till_time} and active = {active} and username = '{self.username}'
             group by 2, 3
             order by 3 desc,
                 1 desc

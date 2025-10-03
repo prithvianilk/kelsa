@@ -14,34 +14,34 @@ class ByAppService:
         return list(filter(lambda w: w[0] > min_seconds, work_data))
 
     def get_work_done_since_start_time_by_tab(
-        self, epoch_time: int, app: str, only_active_work: bool
+        self, since_time: int, till_time: int, app: str, only_active_work: bool
     ):
         if only_active_work:
             return self.work_repo.get_work_done_since_start_time_and_app_is_and_activity_is_by_tab(
-                epoch_time, app, True
+                since_time, till_time, app, True
             )
         else:
-            return self.work_repo.get_work_done_since_start_time_and_app_is_by_tab(epoch_time, app)
+            return self.work_repo.get_work_done_since_start_time_and_app_is_by_tab(since_time, till_time, app)
 
     def get_work_done_since_start_time_by_tab_and_date_hour(
-        self, epoch_time: int, app: str, only_active_work: bool
+        self, since_time: int, till_time: int, app: str, only_active_work: bool
     ):
         if only_active_work:
             return self.work_repo.get_work_done_since_start_time_and_app_is_and_activity_is_by_tab_and_date_hour(
-                epoch_time, app, True
+                since_time, till_time, app, True
             )
         else:
             return self.work_repo.get_work_done_since_start_time_and_app_is_by_tab_and_date_hour(
-                epoch_time, app
+                since_time, till_time, app
             )
 
-    def get_by_app_data(self, epoch_time: int, app: str, only_active_work: bool = False) -> ByAppData:
+    def get_by_app_data(self, since_time: int, till_time: int, app: str, only_active_work: bool = False) -> ByAppData:
         work_done_since_start_time_by_tab = self.get_work_done_since_start_time_by_tab(
-            epoch_time, app, only_active_work
+            since_time, till_time, app, only_active_work
         )
 
         work_done_since_start_time_by_tab_and_date_hour = self.get_work_done_since_start_time_by_tab_and_date_hour(
-            epoch_time, app, only_active_work
+            since_time, till_time, app, only_active_work
         )
 
         app_work_grouper = get_work_grouper(app)

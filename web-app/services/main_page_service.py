@@ -14,13 +14,13 @@ class MainPageService:
     def filter_minimum_duration(self, work_data: List[tuple], min_seconds: int = 60) -> List[tuple]:
         return list(filter(lambda w: w[0] > min_seconds, work_data))
 
-    def get_work_done_since_start_time_by_app(self, epoch_time: int, only_active_work: bool) -> List[WorkByApp]:
+    def get_work_done_since_start_time_by_app(self, since_time: int, till_time: int, only_active_work: bool) -> List[WorkByApp]:
         if only_active_work:
             work_data = self.work_repo.get_work_done_since_start_time_and_activity_is_by_application(
-                epoch_time, True
+                since_time, till_time, True
             )
         else:
-            work_data = self.work_repo.get_work_done_since_start_time_by_application(epoch_time)
+            work_data = self.work_repo.get_work_done_since_start_time_by_application(since_time, till_time)
 
         filtered_data = self.filter_minimum_duration(work_data)
         return [
@@ -29,14 +29,14 @@ class MainPageService:
         ]
 
     def get_work_done_since_start_time_by_app_and_date_hour(
-        self, epoch_time: int, only_active_work: bool
+        self, since_time: int, till_time: int, only_active_work: bool
     ) -> List[WorkByAppAndTime]:
         if only_active_work:
             work_data = self.work_repo.get_work_done_since_start_time_and_activity_is_by_app_and_date_hour(
-                epoch_time, True
+                since_time, till_time, True
             )
         else:
-            work_data = self.work_repo.get_work_done_since_start_time_by_app_and_date_hour(epoch_time)
+            work_data = self.work_repo.get_work_done_since_start_time_by_app_and_date_hour(since_time, till_time)
 
         filtered_data = self.filter_minimum_duration(work_data)
         return [
@@ -44,10 +44,10 @@ class MainPageService:
             for w in filtered_data
         ]
 
-    def get_main_page_data(self, epoch_time: int, only_active_work: bool = False) -> MainPageData:
-        work_by_app = self.get_work_done_since_start_time_by_app(epoch_time, only_active_work)
+    def get_main_page_data(self, since_time: int, till_time: int, only_active_work: bool = False) -> MainPageData:
+        work_by_app = self.get_work_done_since_start_time_by_app(since_time, till_time, only_active_work)
         work_by_app_and_time = self.get_work_done_since_start_time_by_app_and_date_hour(
-            epoch_time, only_active_work
+            since_time, till_time, only_active_work
         )
 
         total_seconds = sum(w.seconds for w in work_by_app)

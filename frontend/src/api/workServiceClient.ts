@@ -18,7 +18,8 @@ export interface MainPageDataSuccess {
 }
 
 export interface GetMainPageDataParams {
-  epochTime: number
+  sinceTime: number
+  tillTime?: number
   onlyActiveWork?: boolean
 }
 
@@ -43,7 +44,8 @@ export interface ByAppData {
 
 export interface GetByAppDataParams {
   app: string
-  epochTime: number
+  sinceTime: number
+  tillTime?: number
   onlyActiveWork?: boolean
 }
 
@@ -59,13 +61,18 @@ export class KelsaWorkServiceClient {
   }
 
   async getMainPageData({
-    epochTime,
+    sinceTime,
+    tillTime,
     onlyActiveWork = false,
   }: GetMainPageDataParams): Promise<MainPageData> {
     const searchParams = new URLSearchParams({
-      epoch_time: epochTime.toString(),
+      since_time: sinceTime.toString(),
       only_active_work: String(onlyActiveWork),
     })
+
+    if (tillTime !== undefined) {
+      searchParams.append('till_time', tillTime.toString())
+    }
 
     try {
       const response = await fetch(
@@ -83,12 +90,16 @@ export class KelsaWorkServiceClient {
     }
   }
 
-  async getByAppData({ app, epochTime, onlyActiveWork = false }: GetByAppDataParams): Promise<ByAppData | ApiError> {
+  async getByAppData({ app, sinceTime, tillTime, onlyActiveWork = false }: GetByAppDataParams): Promise<ByAppData | ApiError> {
     const searchParams = new URLSearchParams({
       app,
-      epoch_time: epochTime.toString(),
+      since_time: sinceTime.toString(),
       only_active_work: String(onlyActiveWork),
     })
+
+    if (tillTime !== undefined) {
+      searchParams.append('till_time', tillTime.toString())
+    }
 
     try {
       const response = await fetch(
