@@ -25,6 +25,13 @@ const API_BASE_URL =
 
 const DEFAULT_LOOKBACK_TIME_IN_MS = 1000 * 60 * 60 * 24
 
+function prettyPrintTime(seconds: number) {
+  if (seconds >= 3600) {
+    return `${formatHours(seconds)} hours`
+  }
+  return `${formatMinutes(seconds)} minutes`
+}
+
 function formatMinutes(seconds: number) {
   return Math.round(seconds / 60)
 }
@@ -154,10 +161,7 @@ function MyWorkPage() {
               <CardHeader>
                 <CardDescription>Total Time Spent</CardDescription>
                 <CardTitle className="text-4xl font-semibold">
-                  {formatMinutes(data.total_time_spent_seconds)}
-                  <span className="ml-2 text-base font-normal text-muted-foreground">
-                    minutes
-                  </span>
+                  {prettyPrintTime(data.total_time_spent_seconds)}
                 </CardTitle>
               </CardHeader>
             </Card>
@@ -209,7 +213,6 @@ function MyWorkPage() {
             </CardHeader>
             <CardContent className="grid gap-2">
               {data.work_by_app.map((item) => {
-                const minutes = formatMinutes(item.seconds)
                 return (
                   <Button
                     key={item.application}
@@ -226,7 +229,7 @@ function MyWorkPage() {
                         Last 24 hours
                       </span>
                     </span>
-                    <span className="text-sm font-medium">{minutes} min</span>
+                    <span className="text-sm font-medium">{prettyPrintTime(item.seconds)}</span>
                   </Button>
                 )
               })}
