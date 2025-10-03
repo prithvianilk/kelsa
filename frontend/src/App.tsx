@@ -62,7 +62,22 @@ function MyWorkPage() {
           return
         }
 
-        setData(response)
+        setData({
+          total_time_spent_seconds: 1000,
+          work_by_app: [
+            {
+              seconds: 1000,
+              application: 'test',
+            },
+          ],
+          work_by_app_and_time: [
+            {
+              seconds: 1000,
+              application: 'test',
+              done_at: '2021-01-01',
+            },
+          ],
+        })
       } finally {
         setIsLoading(false)
       }
@@ -215,7 +230,7 @@ function MyWorkPage() {
                     key={item.application}
                     variant={selectedApp === item.application ? 'default' : 'ghost'}
                     className={cn(
-                      'justify-between text-left bg-transparent hover:bg-accent/40',
+                      'justify-between text-left bg-transparent hover:bg-accent/40 py-8',
                       selectedApp === item.application && 'bg-primary text-primary-foreground hover:bg-primary'
                     )}
                     onClick={() => setSelectedApp(item.application)}
