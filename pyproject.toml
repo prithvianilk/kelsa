@@ -7,7 +7,7 @@ name = "kelsa"
 version = "0.1.0"
 description = "Work tracking and analytics platform"
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.10"
 dependencies = [
     # Web app dependencies
     "pinotdb",
@@ -34,7 +34,7 @@ exclude = ["pinot*", "desktop-recorder*", "web-app*"]
 # Ruff configuration - Modern Python linter and formatter
 [tool.ruff]
 line-length = 100
-target-version = "py38"
+target-version = "py310"
 extend-exclude = ["migrations", "build", "dist", ".eggs", "pinot/data"]
 
 [tool.ruff.lint]
@@ -85,7 +85,7 @@ line-ending = "auto"
 
 # MyPy configuration
 [tool.mypy]
-python_version = "3.8"
+python_version = "3.10"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = false # Start lenient, can be stricter later
