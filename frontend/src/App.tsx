@@ -163,12 +163,12 @@ function MyWorkPage() {
             </Card>
 
             {data.work_by_app.length > 0 && (
-              <Card className="flex-1">
+              <Card className="flex-1 flex flex-col">
                 <CardHeader>
                   <CardTitle>Time distribution</CardTitle>
                   <CardDescription>By application</CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="flex-1 flex items-center justify-center">
                   <ChartContainer
                     config={Object.fromEntries(
                       data.work_by_app.map((app, idx) => [
@@ -179,7 +179,7 @@ function MyWorkPage() {
                         },
                       ])
                     )}
-                    className="mx-auto aspect-square max-h-[400px]"
+                    className="aspect-square max-h-[400px] w-full"
                   >
                     <PieChart>
                       <ChartTooltip
