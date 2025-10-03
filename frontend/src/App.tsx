@@ -18,7 +18,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from '@/components/ui/chart'
-import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from 'recharts'
+import { Pie, PieChart } from 'recharts'
 
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000'
@@ -67,7 +67,7 @@ function MyWorkPage() {
         setIsLoading(false)
       }
     }
-
+    
     void getMainPageData()
   }, [client, timestamp])
 
@@ -148,20 +148,61 @@ function MyWorkPage() {
           </p>
         </header>
 
-        <section className="grid gap-6 md:grid-cols-[2fr,3fr]">
-          <Card className="bg-card/60 backdrop-blur">
-            <CardHeader>
-              <CardDescription>Total Time Spent</CardDescription>
-              <CardTitle className="text-4xl font-semibold">
-                {formatMinutes(data.total_time_spent_seconds)}
-                <span className="ml-2 text-base font-normal text-muted-foreground">
-                  minutes
-                </span>
-              </CardTitle>
-            </CardHeader>
-          </Card>
+        <div className="grid gap-6 md:grid-cols-2">
+          <div className="flex flex-col gap-6">
+            <Card className="bg-card/60 backdrop-blur">
+              <CardHeader>
+                <CardDescription>Total Time Spent</CardDescription>
+                <CardTitle className="text-4xl font-semibold">
+                  {formatMinutes(data.total_time_spent_seconds)}
+                  <span className="ml-2 text-base font-normal text-muted-foreground">
+                    minutes
+                  </span>
+                </CardTitle>
+              </CardHeader>
+            </Card>
 
-          <Card className="bg-card/60 backdrop-blur md:col-span-1">
+            {data.work_by_app.length > 0 && (
+              <Card className="flex-1">
+                <CardHeader>
+                  <CardTitle>Time distribution</CardTitle>
+                  <CardDescription>By application</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ChartContainer
+                    config={Object.fromEntries(
+                      data.work_by_app.map((app, idx) => [
+                        app.application,
+                        {
+                          label: app.application,
+                          color: idx === 0 ? 'hsl(210, 100%, 50%)' : `hsl(${210 + (idx * 25) % 180}, ${70 + (idx * 10) % 30}%, ${45 + (idx * 8) % 25}%)`,
+                        },
+                      ])
+                    )}
+                    className="mx-auto aspect-square max-h-[400px]"
+                  >
+                    <PieChart>
+                      <ChartTooltip
+                        cursor={false}
+                        content={<ChartTooltipContent hideLabel />}
+                      />
+                      <Pie
+                        data={data.work_by_app.map((item) => ({
+                          application: item.application,
+                          minutes: formatMinutes(item.seconds),
+                          fill: `var(--color-${item.application})`,
+                        }))}
+                        dataKey="minutes"
+                        nameKey="application"
+                      />
+                    </PieChart>
+                  </ChartContainer>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+
+          <Card className="bg-card/60 backdrop-blur">
             <CardHeader>
               <CardTitle className="text-sm font-medium">By Application</CardTitle>
               <CardDescription>Last 24 hours</CardDescription>
@@ -191,102 +232,7 @@ function MyWorkPage() {
               })}
             </CardContent>
           </Card>
-        </section>
-
-        {data.work_by_app_and_time.length > 0 && (
-          <Card>
-            <CardHeader>
-              <CardTitle>Work over time</CardTitle>
-              <CardDescription>Activity by application</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ChartContainer
-                config={Object.fromEntries(
-                  Array.from(
-                    new Set(data.work_by_app_and_time.map((d) => d.application))
-                  ).map((app, idx) => [
-                    app,
-                    {
-                      label: app,
-                      color: `hsl(${(idx * 360) / Array.from(new Set(data.work_by_app_and_time.map((d) => d.application))).length}, 70%, 50%)`,
-                    },
-                  ])
-                )}
-                className="h-[300px]"
-              >
-                <AreaChart
-                  data={(() => {
-                    const timeMap = new Map<string, Record<string, string | number>>()
-                    
-                    data.work_by_app_and_time.forEach((item) => {
-                      const time = new Date(item.done_at).toLocaleString('en-US', {
-                        month: 'short',
-                        day: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      })
-                      
-                      if (!timeMap.has(time)) {
-                        timeMap.set(time, { time })
-                      }
-                      
-                      const entry = timeMap.get(time)!
-                      entry[item.application] = item.seconds / 60
-                    })
-                    
-                    return Array.from(timeMap.values()).sort((a, b) => {
-                      return new Date(a.time as string).getTime() - new Date(b.time as string).getTime()
-                    })
-                  })()}
-                >
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis
-                    dataKey="time"
-                    tickLine={false}
-                    axisLine={false}
-                    tickMargin={8}
-                    tickFormatter={(value) => {
-                      const parts = value.split(', ')
-                      return parts[0]
-                    }}
-                  />
-                  <YAxis
-                    tickLine={false}
-                    axisLine={false}
-                    tickMargin={8}
-                    tickFormatter={(value) => `${value}m`}
-                  />
-                  <ChartTooltip
-                    content={
-                      <ChartTooltipContent
-                        labelFormatter={(value) => value}
-                        formatter={(value, name) => (
-                          <div className="flex items-center gap-2">
-                            <span className="text-muted-foreground">{name}:</span>
-                            <span className="font-medium">{value} min</span>
-                          </div>
-                        )}
-                      />
-                    }
-                  />
-                  {Array.from(
-                    new Set(data.work_by_app_and_time.map((d) => d.application))
-                  ).map((app) => (
-                    <Area
-                      key={app}
-                      type="monotone"
-                      dataKey={app}
-                      stackId="1"
-                      stroke={`var(--color-${app})`}
-                      fill={`var(--color-${app})`}
-                      fillOpacity={0.6}
-                    />
-                  ))}
-                </AreaChart>
-              </ChartContainer>
-            </CardContent>
-          </Card>
-        )}
+        </div>
 
         {selectedApp ? (
           <Card>
