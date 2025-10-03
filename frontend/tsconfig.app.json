@@ -15,7 +15,8 @@
     "moduleDetection": "force",
     "baseUrl": ".",
     "paths": {
-      "@src/*": ["src/*"]
+      "@src/*": ["src/*"],
+      "@/*": ["src/*"]
     },
     "noEmit": true,
     "jsx": "react-jsx",
