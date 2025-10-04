@@ -1,7 +1,7 @@
 from __future__ import annotations
 from pyflink.datastream import DataStream
 
-class DataStreamFactory:
+class FlinkDataStreamFactory:
     def __init__(self, bootstrap_servers: str, topic_name: str, flink_sql_connector_kafka_jar: str):
         from pyflink.datastream.execution_mode import RuntimeExecutionMode
         from pyflink.datastream.connectors.kafka import KafkaSource

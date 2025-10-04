@@ -17,7 +17,7 @@ from dtos.main_page import MainPageData
 from dtos.by_app import ByAppData
 from middlewares.cors import add_cors_middleware
 from services.worker.report_generation_worker import ReportGenerationWorker
-from flink.data_stream_factory import DataStreamFactory
+from flink.data_stream_factory import FlinkDataStreamFactory
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from common.auth import decode_auth_header
@@ -36,11 +36,13 @@ kafka_producer = KafkaProducer(bootstrap_servers=[KAFKA_BOOTSTRAP_SERVERS])
 work_ingestion_service = KafkaWorkIngestionService(logger, kafka_producer, KAFKA_TOPIC)
 user_service = HtpasswdUserService(config.get_config("HTPASSWD_FILE"))
 
-data_stream_factory = DataStreamFactory(
+data_stream_factory = FlinkDataStreamFactory(
     KAFKA_BOOTSTRAP_SERVERS, 
     KAFKA_TOPIC, 
     config.get_config("FLINK_SQL_CONNECTOR_KAFKA_JAR"))
-report_generation_worker = ReportGenerationWorker(data_stream_factory)
+report_generation_worker = ReportGenerationWorker(
+    data_stream_factory, 
+    config.get_config("STREAM_OUTPUT_LOGS_DIR"))
 
 # TODO
 # - Add a health check endpoint
