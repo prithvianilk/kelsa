@@ -7,7 +7,7 @@ name = "kelsa"
 version = "0.1.0"
 description = "Work tracking and analytics platform"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.10,<3.12"
 dependencies = [
     # Web app dependencies
     "pinotdb",
@@ -17,6 +17,7 @@ dependencies = [
     "pydantic",
     "python-dotenv",
     "passlib",
+    "apache-flink",
     # Desktop recorder dependencies
     "pyobjc-framework-quartz",
     "requests",

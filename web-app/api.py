@@ -16,20 +16,31 @@ from work import Work
 from dtos.main_page import MainPageData
 from dtos.by_app import ByAppData
 from middlewares.cors import add_cors_middleware
+from services.worker.report_generation_worker import ReportGenerationWorker
+from flink.data_stream_factory import DataStreamFactory
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from common.auth import decode_auth_header
 from common.config import DotEnvEnvironmentVariables
 from common.logger import LogLevel, get_customised_logger
 
+KAFKA_BOOTSTRAP_SERVERS = "localhost:9094"
+KAFKA_TOPIC = "work-topic"
+
 logger = get_customised_logger(LogLevel.INFO)
 config = DotEnvEnvironmentVariables("config.env")
 
 app = FastAPI(title="Kelsa Work API", description="API for work tracking data")
 
-kafka_producer = KafkaProducer(bootstrap_servers=["localhost:9094"])
-work_ingestion_service = KafkaWorkIngestionService(logger, kafka_producer, "work-topic")
+kafka_producer = KafkaProducer(bootstrap_servers=[KAFKA_BOOTSTRAP_SERVERS])
+work_ingestion_service = KafkaWorkIngestionService(logger, kafka_producer, KAFKA_TOPIC)
 user_service = HtpasswdUserService(config.get_config("HTPASSWD_FILE"))
+
+data_stream_factory = DataStreamFactory(
+    KAFKA_BOOTSTRAP_SERVERS, 
+    KAFKA_TOPIC, 
+    config.get_config("FLINK_SQL_CONNECTOR_KAFKA_JAR"))
+report_generation_worker = ReportGenerationWorker(data_stream_factory)
 
 # TODO
 # - Add a health check endpoint
